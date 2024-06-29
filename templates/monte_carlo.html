@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Monte Carlo Simulation{% endblock %}
+{% block content %}
+    <div class="container mt-4">
+        <h1 class="text-center mb-4">Monte Carlo Simulation</h1>
+        <form action="/monte-carlo" method="POST" class="needs-validation" novalidate>
+            <div class="form-group">
+                <label for="ticker">Ticker:</label>
+                <input type="text" id="ticker" name="ticker" class="form-control" placeholder="Enter stock ticker" required>
+                <div class="invalid-feedback">Please provide a ticker symbol.</div>
+            </div>
+            <div class="form-group">
+                <label for="simulations">Simulations:</label>
+                <input type="number" id="simulations" name="simulations" class="form-control" placeholder="Number of simulations" required>
+                <div class="invalid-feedback">Please provide the number of simulations.</div>
+            </div>
+            <div class="form-group">
+                <label for="days">Days:</label>
+                <input type="number" id="days" name="days" class="form-control" placeholder="Number of days" required>
+                <div class="invalid-feedback">Please provide the number of days.</div>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Simulate</button>
+        </form>
+
+        {% if plot_data %}
+        <div class="row justify-content-center mt-4">
+            <div class="col-md-10">
+                <div class="card shadow">
+                    <div class="card-header text-center bg-secondary text-white">
+                        <h3>Stock Price Chart</h3>
+                    </div>
+                    <div class="card-body text-center">
+                        <img src="data:image/png;base64,{{ plot_data }}" class="img-fluid" alt="Stock Price Chart">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr>
+        {% elif error %}
+        <div class="alert alert-danger mt-4 text-center">{{ error }}</div>
+        {% endif %}
+    </div>
+    
+    <script>
+        // Example starter JavaScript for disabling form submissions if there are invalid fields
+        (function () {
+            'use strict';
+            window.addEventListener('load', function () {
+                // Fetch all the forms we want to apply custom Bootstrap validation styles to
+                var forms = document.getElementsByClassName('needs-validation');
+                // Loop over them and prevent submission
+                var validation = Array.prototype.filter.call(forms, function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (form.checkValidity() === false) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        }
+                        form.classList.add('was-validated');
+                    }, false);
+                });
+            }, false);
+        })();
+    </script>
+{% endblock %}

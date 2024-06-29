@@ -1,0 +1,222 @@
+{% extends "base.html" %}
+{% block title %}DCF Analysis{% endblock %}
+{% block content %}
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Stock Intrinsic Value Calculator</h1>
+        <form action="/dcf-analysis" method="post" class="needs-validation mb-5" novalidate>
+            <div class="form-group">
+                <input type="text" class="form-control" name="symbol" placeholder="Enter Ticker Symbol" required>
+                <div class="invalid-feedback">Please provide a ticker symbol.</div>
+            </div>
+            <div class="form-group">
+                <input type="number" class="form-control" step="any" name="growthRate" placeholder="Growth Rate (%)" required>
+                <div class="invalid-feedback">Please provide a growth rate.</div>
+            </div>
+            <button type="submit" class="btn btn-dark btn-block">Calculate</button>
+        </form>
+
+        {% if intrinsic_value %}
+            <h2 class="text-center text-success">{{ symbol }} Intrinsic Value: ${{ intrinsic_value }}</h2>
+        {% endif %}
+
+        {% if error %}
+            <p class="text-danger text-center mt-3">Error: {{ error }}</p>
+        {% endif %}
+    </div>
+
+    {% if WACC %}
+        <div class="container mb-5">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped table-bordered">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>WACC</th>
+                            <th colspan="2" class="text-center">{{ WACC }}%</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>EV/EBITDA Multiple</td>
+                            <td colspan="2" class="text-center">{{ ev_ebitda_multiple }}x</td>
+                        </tr>
+                        <tr>
+                            <td>Earnings Growth</td>
+                            <td colspan="2" class="text-center">{{ earnings_growth }}%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% endif %}
+
+    <hr>
+
+    {% if terminal_value %}
+        <div class="container mb-5">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped table-bordered">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>Period</th>
+                            <th>1</th>
+                            <th>2</th>
+                            <th>3</th>
+                            <th>4</th>
+                            <th>5</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>EBITDA</td>
+                            <td class="text-center">{{ ebitda_forecast[0] }}</td>
+                            <td class="text-center">{{ ebitda_forecast[1] }}</td>
+                            <td class="text-center">{{ ebitda_forecast[2] }}</td>
+                            <td class="text-center">{{ ebitda_forecast[3] }}</td>
+                            <td class="text-center">{{ ebitda_forecast[4] }}</td>
+                        </tr>
+                        <tr>
+                            <td>FCF</td>
+                            <td class="text-center">{{ freecashflow_forecast[0] }}</td>
+                            <td class="text-center">{{ freecashflow_forecast[1] }}</td>
+                            <td class="text-center">{{ freecashflow_forecast[2] }}</td>
+                            <td class="text-center">{{ freecashflow_forecast[3] }}</td>
+                            <td class="text-center">{{ freecashflow_forecast[4] }}</td>
+                        </tr>
+                        <tr>
+                            <td colspan="5" class="text-right font-weight-bold">Terminal Value: </td>
+                            <td class="text-center font-weight-bold">{{ terminal_value }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% endif %}
+
+    <hr>
+
+    {% if freecashflow_forecast %}
+        <div class="container mb-5">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped table-bordered">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>Period</th>
+                            <th>1</th>
+                            <th>2</th>
+                            <th>3</th>
+                            <th>4</th>
+                            <th>5</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>FCF</td>
+                            <td class="text-center">{{ freecashflow_forecast[0] }}</td>
+                            <td class="text-center">{{ freecashflow_forecast[1] }}</td>
+                            <td class="text-center">{{ freecashflow_forecast[2] }}</td>
+                            <td class="text-center">{{ freecashflow_forecast[3] }}</td>
+                            <td class="text-center">{{ freecashflow_forecast[4] }}</td>
+                        </tr>
+                        <tr>
+                            <td colspan="5" class="text-right font-weight-bold">Terminal Value: </td>
+                            <td class="text-center font-weight-bold">{{ terminal_value }}</td>
+                        </tr>
+                        <tr>
+                            <td>Discount Factor</td>
+                            <td class="text-center">{{ discount_factor_list[0] }}</td>
+                            <td class="text-center">{{ discount_factor_list[1] }}</td>
+                            <td class="text-center">{{ discount_factor_list[2] }}</td>
+                            <td class="text-center">{{ discount_factor_list[3] }}</td>
+                            <td class="text-center">{{ discount_factor_list[4] }}</td>
+                        </tr>
+                        <tr>
+                            <td>PV of FCF</td>
+                            <td class="text-center">{{ PV_FCF_list[0] }}</td>
+                            <td class="text-center">{{ PV_FCF_list[1] }}</td>
+                            <td class="text-center">{{ PV_FCF_list[2] }}</td>
+                            <td class="text-center">{{ PV_FCF_list[3] }}</td>
+                            <td class="text-center">{{ PV_FCF_list[4] }}</td>
+                        </tr>
+                        <tr>
+                            <td colspan="5" class="text-right font-weight-bold">PV of TV</td>
+                            <td class="text-center font-weight-bold">{{ PV_TV }}</td>
+                        </tr>
+                        <tr>
+                            <td colspan="5" class="text-right font-weight-bold" >Enterprise Value</td>
+                            <td class="text-center font-weight-bold">{{ enterprise_value }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% endif %}
+
+    <hr>
+
+    {% if enterprise_value %}
+        <div class="container mb-5">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped table-bordered">
+                    <thead class="thead-dark">
+                        <tr class="text-center">
+                            <th colspan="2">Enterprise Value to Equity Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="text-left">Enterprise Value</td>
+                            <td class="text-center">{{ enterprise_value }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-left">Total Assets</td>
+                            <td class="text-center">{{ total_assets }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-left">Total Debt</td>
+                            <td class="text-center">{{ total_debt }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-left">Equity Value</td>
+                            <td class="text-center">{{ equity_value }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-left">Shares Outstanding</td>
+                            <td class="text-center">{{ shares_outstanding }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-left">Share Price</td>
+                            <td class="text-center">{{ intrinsic_value }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% endif %}
+
+    {% if plot_data %}
+        <div class="container mb-5">
+            <div class="text-center">
+                <h3>Stock Price Chart</h3>
+                <img src="data:image/png;base64,{{ plot_data }}" class="img-fluid img-thumbnail" alt="Stock Price Chart">
+            </div>
+        </div>
+    {% endif %}
+
+    <script>
+        (function () {
+            'use strict';
+            window.addEventListener('load', function () {
+                var forms = document.getElementsByClassName('needs-validation');
+                var validation = Array.prototype.filter.call(forms, function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (form.checkValidity() === false) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        }
+                        form.classList.add('was-validated');
+                    }, false);
+                });
+            }, false);
+        })();
+    </script>
+{% endblock %}
