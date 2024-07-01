@@ -173,19 +173,20 @@ def dcf_analysis():
 @app.route('/ai-summarizer', methods=['GET', 'POST'])
 def ai_summarizer():
     predefined_questions = [
+        "Give me a very brief one sentence summary of this earnings call.",
         "Give me a summary of the earnings call.",
         "Give me a summary of the financials and how they changed from last quarter and last year. Were they in line with EPS investors' expectations?",
         "What is the forward guidance issued and what macroeconomic trends does the company expect to change or expect to be constant?",
-        "What are some new product launches or new categories the company launched in the latest quarter?",
-        "Give me a very brief one sentence summary of this earnings call."
+        "What are some new product launches or new categories the company launched in the latest quarter?"
+        
     ]
 
     headers = [
-        "Long Summary",
-        "Change in financials and expectations",
-        "Forward Guidance",
-        "Product development",
-        "Brief Summary"
+        "Brief Summary",
+        "Detailed Summary",
+        "Change in Financials and Investor Expectations",
+        "Forward Guidance Issued",
+        "Product Developments"
     ]
 
     predefined_answers = []
