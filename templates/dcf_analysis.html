@@ -2,7 +2,11 @@
 {% block title %}DCF Analysis{% endblock %}
 {% block content %}
     <div class="container mt-5">
-        <h1 class="text-center mb-4">Stock Intrinsic Value Calculator</h1>
+        <div class="alert alert-warning text-center" role="alert">
+            Warning: Don't use for holding companies, sum of parts comapanies, companies with negative free cash flow/unprofitable
+            *not financial advice
+        </div>
+        <h1 class="text-center mb-4">DCF Stock Intrinsic Value Calculator</h1>
         <form action="/dcf-analysis" method="post" class="needs-validation mb-5" novalidate>
             <div class="form-group">
                 <input type="text" class="form-control" name="symbol" placeholder="Enter Ticker Symbol" required>
