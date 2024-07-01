@@ -71,17 +71,3 @@ def plot_simulation(symbol, price_paths, num_simulations, num_days):
     except Exception as e:
         print(f"Error generating plot: {e}")
         return None
-
-
-
-# # actually running the code with parameters 
-# # Parameters
-# symbol = 'AAPL'
-# start_date = '2020-01-01'
-# end_date = datetime.datetime.now().strftime('%Y-%m-%d')
-# num_simulations = 25
-# num_days = 100  
-
-# stock_data = fetch_stock_data(symbol, start_date, end_date)
-# price_paths = monte_carlo_simulation(stock_data, num_simulations, num_days)
-# plot_simulation(symbol, price_paths, num_simulations, num_days)

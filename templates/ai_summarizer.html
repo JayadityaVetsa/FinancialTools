@@ -1,60 +1,83 @@
 {% extends "base.html" %}
-{% block title %}AI Transcript Analyzer{% endblock %}
+
+{% block title %}AI Summarizer{% endblock %}
+
 {% block content %}
 <div class="container mt-4">
     <h1 class="text-center mb-4">AI Summarizer</h1>
+
+    <!-- Display error if any -->
+    {% if error %}
+    <div class="alert alert-danger">{{ error }}</div>
+    {% endif %}
+
+    <!-- Form for initial input if ticker, quarter, and year are not in session -->
     <form action="/ai-summarizer" method="post" class="needs-validation" novalidate>
         <div class="form-group">
             <label for="ticker">Ticker:</label>
-            <input type="text" id="ticker" name="ticker" class="form-control" required>
+            <input type="text" id="ticker" name="ticker" class="form-control" placeholder="Enter stock ticker" required>
             <div class="invalid-feedback">Please provide a ticker symbol.</div>
         </div>
         <div class="form-group">
             <label for="quarter">Quarter:</label>
-            <input type="text" id="quarter" name="quarter" class="form-control" required>
+            <input type="text" id="quarter" name="quarter" class="form-control" placeholder="Enter a Quarter" required>
             <div class="invalid-feedback">Please provide a quarter.</div>
         </div>
         <div class="form-group">
             <label for="year">Year:</label>
-            <input type="text" id="year" name="year" class="form-control" required>
+            <input type="text" id="year" name="year" class="form-control" placeholder="Enter year" required>
             <div class="invalid-feedback">Please provide a year.</div>
         </div>
-        <div class="form-group">
-            <label for="question">Question:</label>
-            <input type="text" id="question" name="question" class="form-control" required>
-            <div class="invalid-feedback">Please provide a question.</div>
-        </div>
-        <button type="submit" class="btn btn-primary">Summarize</button>
+        <button type="submit" class="btn btn-primary">Submit</button>
     </form>
 
-    {% if response %}
-        <div class="mt-4">
-            <h2 class="text-success">Question:</h2>
-            <p class="lead">{{ question }}</p>
-            <h2 class="text-success">Answer:</h2>
-            <p class="bg-light p-3 rounded">{{ response }}</p>
+    <!-- Display predefined questions and answers in accordions -->
+    {% if predefined_answers %}
+    <hr>
+    <div class="accordion" id="predefinedAccordion">
+        <h2>{{ ticker }} earning calls in {{ quarter }}, {{ year }}</h2>
+        {% for header, answer in headers | zip(predefined_answers) %}
+        <div class="card">
+            <div class="card-header" id="heading{{ loop.index }}">
+                <h2 class="mb-0">
+                    <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse{{ loop.index }}" aria-expanded="true" aria-controls="collapse{{ loop.index }}">
+                        {{ header }}
+                    </button>
+                </h2>
+            </div>
+            <div id="collapse{{ loop.index }}" class="collapse" aria-labelledby="heading{{ loop.index }}" data-parent="#predefinedAccordion">
+                <div class="card-body">
+                    {{ answer }}
+                </div>
+            </div>
         </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+
+
+    <!-- Form for user-defined questions -->
+    {% if ticker and quarter and year %}
+    <hr>
+    <form action="/ai-summarizer" method="post" class="needs-validation" novalidate>
+        <div class="form-group">
+            <label for="question">Ask a New Question:</label>
+            <input type="text" id="question" name="question" class="form-control" placeholder="Question" required>
+            <div class="invalid-feedback">Please provide a question.</div>
+        </div>
+        <button type="submit" class="btn btn-primary">Ask AI</button>
+    </form>
+    {% endif %}
+
+    <!-- Display user-defined question and response -->
+    {% if user_question and user_response %}
+    <div class="mt-4">
+        <h2 class="text-success">Question:</h2>
+        <p class="lead">{{ user_question }}</p>
+        <h2 class="text-success">Answer:</h2>
+        <p class="bg-light p-3 rounded">{{ user_response }}</p>
+    </div>
     {% endif %}
 </div>
-
-<script>
-    // Bootstrap validation script
-    (function() {
-        'use strict';
-        window.addEventListener('load', function() {
-            // Fetch all the forms we want to apply custom Bootstrap validation styles to
-            var forms = document.getElementsByClassName('needs-validation');
-            // Loop over them and prevent submission
-            var validation = Array.prototype.filter.call(forms, function(form) {
-                form.addEventListener('submit', function(event) {
-                    if (form.checkValidity() === false) {
-                        event.preventDefault();
-                        event.stopPropagation();
-                    }
-                    form.classList.add('was-validated');
-                }, false);
-            });
-        }, false);
-    })();
-</script>
 {% endblock %}

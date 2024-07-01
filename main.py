@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, session
 import requests
 import yfinance as yf
 import json
@@ -15,6 +15,12 @@ import matplotlib
 matplotlib.use('Agg')
 
 app = Flask(__name__)
+app.secret_key = 'your_secret_key'
+
+# Custom zip filter
+@app.template_filter('zip')
+def zip_filter(a, b):
+    return zip(a, b)
 
 @app.route('/')
 def home():
@@ -94,7 +100,16 @@ def dcf_analysis():
             for i in range(5):
                 PV_FCF_list.append(freecashflow_forecast[i] * discount_factor_list[i])
 
-            terminal_value = (EV_EBITDA) * ebitda_forecast[4]
+            US_GDP_Growth = 0.025
+
+            EVEBITDATV = (EV_EBITDA) * ebitda_forecast[4]
+            perpuity_growth_terminal_value = (freecashflow_forecast[4]*(1+US_GDP_Growth)) / (WACC-US_GDP_Growth)
+
+            if (perpuity_growth_terminal_value > EVEBITDATV):
+                terminal_value = EVEBITDATV
+            else: 
+                terminal_value = (perpuity_growth_terminal_value +EVEBITDATV )/2
+
             PV_TV = terminal_value * discount_factor_list[4]
             enterprise_value = sum(PV_FCF_list) + PV_TV
             equity_value = enterprise_value + total_assets - total_debt
@@ -138,6 +153,8 @@ def dcf_analysis():
                                    ev_ebitda_multiple=EV_EBITDA,
                                    ebitda_forecast=ebitda_forecast,
                                    freecashflow_forecast=freecashflow_forecast,
+                                   EVEBITDATV = EVEBITDATV,
+                                   perpuity_growth_terminal_value = perpuity_growth_terminal_value,
                                    terminal_value=terminal_value,
                                    plot_data=plot_data,
                                    discount_factor_list = discount_factor_list,
@@ -155,57 +172,156 @@ def dcf_analysis():
 
 @app.route('/ai-summarizer', methods=['GET', 'POST'])
 def ai_summarizer():
+    predefined_questions = [
+        "Give me a summary of the earnings call.",
+        "Give me a summary of the financials and how they changed from last quarter and last year. Were they in line with EPS investors' expectations?",
+        "What is the forward guidance issued and what macroeconomic trends does the company expect to change or expect to be constant?",
+        "What are some new product launches or new categories the company launched in the latest quarter?",
+        "Give me a very brief one sentence summary of this earnings call."
+    ]
+
+    headers = [
+        "Long Summary",
+        "Change in financials and expectations",
+        "Forward Guidance",
+        "Product development",
+        "Brief Summary"
+    ]
+
+    predefined_answers = []
+    user_question = ""
+    user_response = ""
+    error = ""
+
     if request.method == 'POST':
-        ticker = request.form.get('ticker', '')
-        quarter = request.form.get('quarter', '')
-        year = request.form.get('year', '')
-        question = request.form.get('question', '')
+        if 'ticker' in request.form and 'quarter' in request.form and 'year' in request.form:
+            ticker = request.form['ticker'].strip()
+            quarter = 'Q' + request.form['quarter'].strip() if 'Q' not in request.form['quarter'].strip() else request.form['quarter'].strip()
+            year = request.form['year'].strip()
 
-        if not ticker or not quarter or not year or not question:
-            return render_template('ai_summarizer.html', response="All fields are required", question=question)
+            if not ticker or not quarter or not year:
+                error = "All fields are required."
+            else:
+                session['ticker'] = ticker
+                session['quarter'] = quarter
+                session['year'] = year
+        else:
+            ticker = session.get('ticker')
+            quarter = session.get('quarter')
+            year = session.get('year')
 
-        api_url = f"https://discountingcashflows.com/api/transcript/{ticker}/{quarter}/{year}/"
-        response = requests.get(api_url)
-        json_data = response.json()
-        transcript = json_data[0].get("content", "Transcript not found.")
+            if not ticker or not quarter or not year:
+                error = "Please provide ticker, quarter, and year first."
+            else:
+                user_question = request.form.get('question', '').strip()
+                if user_question:
+                    api_url = f"https://discountingcashflows.com/api/transcript/{ticker}/{quarter}/{year}/"
+                    response = requests.get(api_url)
+                    if response.status_code != 200:
+                        error = "Error fetching transcript."
+                    else:
+                        json_data = response.json()
+                        transcript = json_data[0].get("content", "Transcript not found.")
 
-        # Configure the AI model
-        genai.configure(api_key="AIzaSyCM0FzebXGOkU9TL18Q9yeB8FzeHmk45PM")
-        generation_config = {
-            "temperature": 1,
-            "top_p": 0.95,
-            "top_k": 64,
-            "max_output_tokens": 8192,
-            "response_mime_type": "text/plain",
-        }
+                        genai.configure(api_key="AIzaSyBQ5yUGkgXo8s1k0DV3uFTLc7EnJqDtSKQ")  # Replace with your actual API key
+                        generation_config = {
+                            "temperature": 1,
+                            "top_p": 0.95,
+                            "top_k": 64,
+                            "max_output_tokens": 8192,
+                            "response_mime_type": "text/plain",
+                        }
 
-        model = genai.GenerativeModel(
-            model_name="gemini-1.5-flash",
-            generation_config=generation_config,
-        )
+                        model = genai.GenerativeModel(
+                            model_name="gemini-1.5-flash",
+                            generation_config=generation_config,
+                        )
 
-        chat_session = model.start_chat(
-            history=[
-                {
-                    "role": "user",
-                    "parts": [
-                        "Analyze the transcript provided and answer any questions the user has on these transcripts",
-                        transcript,
-                    ],
-                },
-                {
-                    "role": "model",
-                    "parts": [
-                        "Got it! I have analyzed the report and I will provide answers to the user's needs\n",
-                    ],
-                },
-            ]
-        )
+                        chat_session = model.start_chat(
+                            history=[
+                                {
+                                    "role": "user",
+                                    "parts": [
+                                        "Analyze the transcript provided and answer any questions the user has on these transcripts",
+                                        transcript,
+                                    ],
+                                },
+                                {
+                                    "role": "model",
+                                    "parts": [
+                                        "Got it! I have analyzed the report and I will provide answers to the user's needs\n",
+                                    ],
+                                },
+                            ]
+                        )
 
-        ai_response = chat_session.send_message(question)
-        cleaned_response = ai_response.text.replace("**", "")  # Remove asterisks
-        return render_template('ai_summarizer.html', question=question, response=cleaned_response)
-    return render_template('ai_summarizer.html')
+                        ai_response = chat_session.send_message(user_question)
+                        user_response = ai_response.text.replace("**", "\n").replace("*", "\n")
+
+        if not error and ticker and quarter and year:
+            api_url = f"https://discountingcashflows.com/api/transcript/{ticker}/{quarter}/{year}/"
+            response = requests.get(api_url)
+            if response.status_code != 200:
+                error = "Error fetching transcript."
+            else:
+                json_data = response.json()
+                transcript = json_data[0].get("content", "Transcript not found.")
+
+                genai.configure(api_key="AIzaSyBQ5yUGkgXo8s1k0DV3uFTLc7EnJqDtSKQ")  # Replace with your actual API key
+                generation_config = {
+                    "temperature": 1,
+                    "top_p": 0.95,
+                    "top_k": 64,
+                    "max_output_tokens": 8192,
+                    "response_mime_type": "text/plain",
+                }
+
+                model = genai.GenerativeModel(
+                    model_name="gemini-1.5-flash",
+                    generation_config=generation_config,
+                )
+
+                chat_session = model.start_chat(
+                    history=[
+                        {
+                            "role": "user",
+                            "parts": [
+                                "Analyze the transcript provided and answer any questions the user has on these transcripts",
+                                transcript,
+                            ],
+                        },
+                        {
+                            "role": "model",
+                            "parts": [
+                                "Got it! I have analyzed the report and I will provide answers to the user's needs\n",
+                            ],
+                        },
+                    ]
+                )
+
+                for question in predefined_questions:
+                    ai_response = chat_session.send_message(question)
+                    cleaned_response = ai_response.text.replace("**", "\n").replace("*", "\n")
+                    predefined_answers.append(cleaned_response)
+
+    else:  # GET request
+        # Clear the session data
+        session.clear()
+        ticker = ""
+        quarter = ""
+        year = ""
+
+    return render_template(
+        'ai_summarizer.html',
+        predefined_answers=predefined_answers,
+        user_question=user_question,
+        user_response=user_response,
+        headers=headers,
+        ticker=ticker,
+        quarter=quarter,
+        year=year,
+        error=error
+    )
 
 @app.route('/monte-carlo', methods=['GET', 'POST'])
 def monte_carlo():
@@ -231,6 +347,51 @@ def monte_carlo():
         return render_template('monte_carlo.html', plot_data=plot_data)
 
     return render_template('monte_carlo.html')
+
+@app.route('/SEC_Fillings', methods=['GET', 'POST'])
+def SEC_Fillings():
+    if request.method == 'POST':
+        ticker = request.form['ticker'].upper()
+        api_url = f"https://discountingcashflows.com/api/sec-filings/{ticker}/"
+        response = requests.get(api_url)
+        json_data = response.json()
+        links_10q = []
+        dates_10q = []
+
+        links_10K = []
+        dates_10k = []
+
+
+        links_4 = []
+        dates_4 = []
+        count = 0
+        for i in range(len(json_data)):
+            if json_data[i]['type'] == '4':
+                links_4.append(json_data[i]['finalLink'])
+                dates_4.append(json_data[i]['fillingDate'])
+                count = count + 1
+            if count == 40:
+                break
+        for i in range(len(json_data)):
+            if json_data[i]['type'] == '10-Q':
+                links_10q.append(json_data[i]['finalLink'])
+                dates_10q.append(json_data[i]['fillingDate'])  
+            
+            if json_data[i]['type'] == '10-K':   
+                links_10K.append(json_data[i]['finalLink'])
+                dates_10k.append(json_data[i]['fillingDate'])  
+        max_length = max(len(dates_10q), len(dates_10k), len(dates_4))
+
+
+        return render_template('SEC_Fillings.html',links_10q=links_10q,
+                               dates_10q=dates_10q,
+                               links_10K= links_10K,
+                               dates_10k=dates_10k,
+                               links_4=links_4,
+                               dates_4=dates_4,
+                               max_length = max_length,
+                                zip=zip)
+    return render_template("SEC_Fillings.html")
 
 if __name__ == '__main__':
     app.run(debug=True)
