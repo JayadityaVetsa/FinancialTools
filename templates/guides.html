@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+    <div class="container my-5">
+        <header class="text-center mb-5">
+            <h1 class="display-4 bg-light">Scroll down to the Guide you want to access</h1>
+        </header>
+
+        <!-- DCF Analysis Guide Section -->
+        <div class="card mb-5">
+            <div class="card-header">
+                <h2 class="card-title">DCF Analysis Guide</h2>
+            </div>
+            <div class="card-body">
+                <p>The DCF (Discounted Cash Flow) model is a financial tool used to estimate a company’s value based on its expected future cash flows. The model calculates how much these future cash flows are worth today by using a discount rate, which considers the risk and the time value of money.</p>
+                <p>To use the DCF model, you need to know the company’s expected growth rate for the next 5 years (i.e., how much their revenue is expected to grow). The model assumes that the company’s free cash flow percentage and profitability remain the same and grow at the same rate as revenue over this period.</p>
+                <img src="{{ url_for('static', filename='DCF1.jpg') }}" alt="DCF1" class="img-fluid my-3">
+                <h5>Steps the model automates:</h5>
+                <ul class="list-group">
+                    <li class="list-group-item">Calculate the Weighted Average Cost of Capital (WACC): This is used as the discount rate.</li>
+                    <li class="list-group-item">Forecast EBITDA and Free Cash Flow for the next 5 years.</li>
+                    <li class="list-group-item">Calculate the Terminal Value using Perpetuity Growth or Exit Multiple strategy.</li>
+                    <li class="list-group-item">Discount Future Cash Flows to present value.</li>
+                    <li class="list-group-item">Calculate Enterprise Value by adding up discounted cash flows and terminal value.</li>
+                    <li class="list-group-item">Find the Implied Share Price by adjusting for assets, debt, and shares outstanding.</li>
+                </ul>
+                <img src="{{ url_for('static', filename='DCF2.jpg') }}" alt="DCF2" class="img-fluid my-3">
+                <p class="mt-3">Remember, this model doesn’t consider share repurchases which could increase stock prices. It’s also wise to apply a margin of safety to account for any hidden variables.</p>
+            </div>
+        </div>
+
+        <!-- AI Earnings Call Summarizer Section -->
+        <div class="card mb-5">
+            <div class="card-header">
+                <h2 class="card-title">AI Earnings Call Summarizer</h2>
+            </div>
+            <div class="card-body">
+                <img src="{{ url_for('static', filename='AI_summarizer2.jpg') }}" alt="AI_summarizer2" class="img-fluid mb-3">
+                <p>Most companies hold earnings calls to discuss their financials and answer questions from analysts and investors. Not all companies hold earnings calls but most do this; this might result in the summarizer not working.</p>
+                <p>Our AI Earnings Call Summarizer helps you understand what happened during these calls, whether you attended or not. It’s useful for getting a quick overview of a company’s performance if you’re considering buying or trading its stock.</p>
+                <p>You just need to enter the stock ticker, the quarter (Q1, Q2, Q3, or Q4), and the year. The summarizer will provide a summary of the key points and five main questions discussed.</p>
+                <p>You can click on the text to expand for more details. If you have further questions, you can ask our chatbot for more information about the earnings call or the company.</p>
+            </div>
+        </div>
+
+        <!-- Monte Carlo Simulation Guide Section -->
+        <div class="card mb-5">
+            <div class="card-header">
+                <h2 class="card-title">Monte Carlo Simulation Guide</h2>
+            </div>
+            <div class="card-body">
+                <img src="{{ url_for('static', filename='Monte_carlo.jpg') }}" alt="Monte_carlo" class="img-fluid mb-3">
+                <p>The Monte Carlo Simulation models the probability of different stock price movements based on historical trends. It shows various possible price movements, which is useful for identifying trading risks.</p>
+                <p>To use it, input the stock ticker, the number of simulations (how many possibilities you want to see), and the number of trading days you want to model for.</p>
+                <p>The simulation will show:</p>
+                <ul class="list-group">
+                    <li class="list-group-item">The highest and lowest price movements from the starting point.</li>
+                    <li class="list-group-item">A line of best fit to show the most likely outcome.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- SEC Filings Guide Section -->
+        <div class="card mb-5">
+            <div class="card-header">
+                <h2 class="card-title">SEC Filings Guide</h2>
+            </div>
+            <div class="card-body">
+                <img src="{{ url_for('static', filename='SEC_fillings1.jpg') }}" alt="SEC_fillings" class="img-fluid mb-3">
+                <p>Our SEC Filings feature allows you to easily look up a company’s reports, such as quarterly and annual reports, Form 4 (buying and selling of stocks/options by executives/employees/board members), and Form 8-K (major changes, acquisitions, or asset dispositions).</p>
+                <p>With our tool, you can access these forms with a single click, saving you time from searching through a company’s investor relations page as each company's website is formatted differently.</p>
+            </div>
+        </div>
+
+        <!-- Terminology Section -->
+        <div class="card mb-5">
+            <div class="card-header">
+                <h2 class="card-title">Terminology</h2>
+            </div>
+            <div class="card-body">
+                <ul class="list-group">
+                    <li class="list-group-item"><strong>Ticker:</strong> A stock ticker is a short abbreviation of a publicly traded company’s stock on the stock exchange. e.g., Apple → AAPL, Ford → F, AT&T → T</li>
+                    <li class="list-group-item"><strong>Discounted Cash Flow (DCF):</strong> A valuation method used to estimate the value of an investment based on its expected future cash flows.</li>
+                    <li class="list-group-item"><strong>Free Cash Flow (FCF):</strong> Cash generated by a company after accounting for cash outflows to support operations and maintain capital assets.</li>
+                    <li class="list-group-item"><strong>Discount Rate:</strong> The interest rate used to discount future cash flows to their present value.</li>
+                    <li class="list-group-item"><strong>Weighted Average Cost of Capital (WACC):</strong> A company's cost of capital, proportionately weighing its use of debt and equity financing.</li>
+                    <li class="list-group-item"><strong>EBITDA:</strong> Earnings before income tax, depreciation, and amortization.</li>
+                    <li class="list-group-item"><strong>Terminal Value:</strong> The value of a company’s expected cash flow beyond the explicit forecast period.</li>
+                    <li class="list-group-item"><strong>Discount Factor:</strong> The percentage you want to discount the money to bring it to present value.</li>
+                    <li class="list-group-item"><strong>Enterprise Value:</strong> The terminal value plus the present value of all the free cash flows from each of the 5 years.</li>
+                    <li class="list-group-item"><strong>Equity Value:</strong> The enterprise value plus all assets minus the total debt.</li>
+                    <li class="list-group-item"><strong>Shares Outstanding:</strong> The total amount of shares issued by a company.</li>
+                    <li class="list-group-item"><strong>10-Q Report:</strong> A quarterly report required by the SEC that gives a comprehensive summary of a company’s performance.</li>
+                    <li class="list-group-item"><strong>Form 4:</strong> A document that must be filed with the SEC whenever there is a material change (sold/bought stock, etc) in the holdings of company insiders.</li>
+                    <li class="list-group-item"><strong>Form 8-K:</strong> A report of unscheduled material events or corporate changes at a company that could be of importance to shareholders or the SEC.</li>
+                    <li class="list-group-item"><strong>Earnings Call:</strong> A conference call where a company discusses its financial performance for a specific period.</li>
+                    <li class="list-group-item"><strong>Monte Carlo Simulation:</strong> A mathematical technique that allows for the modeling of the probability of different outcomes in a process that cannot easily be predicted due to the intervention of random variables.</li>
+                    <li class="list-group-item"><strong>Simulations:</strong> Iterations of a model used to predict the range of possible outcomes.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+{% endblock %}

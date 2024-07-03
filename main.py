@@ -26,10 +26,14 @@ def zip_filter(a, b):
 def home():
     return render_template('home.html')
 
+@app.route('/guides', methods=['GET'])
+def guides():
+    return render_template('guides.html')
+
 @app.route('/dcf-analysis', methods=['GET', 'POST'])
 def dcf_analysis():
     if request.method == 'POST':
-        symbol = request.form['symbol'].upper()
+        symbol = request.form['ticker'].upper()
         apikey_fmp = 'ZyymFyFsPSWfZBrL0skr97yoYyM5Czdr'
         try:
             # Get Free Cash Flow
@@ -105,10 +109,7 @@ def dcf_analysis():
             EVEBITDATV = (EV_EBITDA) * ebitda_forecast[4]
             perpuity_growth_terminal_value = (freecashflow_forecast[4]*(1+US_GDP_Growth)) / (WACC-US_GDP_Growth)
 
-            if (perpuity_growth_terminal_value > EVEBITDATV):
-                terminal_value = EVEBITDATV
-            else: 
-                terminal_value = (perpuity_growth_terminal_value +EVEBITDATV )/2
+            terminal_value = (perpuity_growth_terminal_value +EVEBITDATV )/2
 
             PV_TV = terminal_value * discount_factor_list[4]
             enterprise_value = sum(PV_FCF_list) + PV_TV

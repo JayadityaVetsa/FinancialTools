@@ -3,66 +3,64 @@
 {% block title %}Home{% endblock %}
 
 {% block content %}
-<div class="container my-5">
-    <header class="text-center mb-5">
-        <h1 class="display-4">Welcome to the Financial Analysis Tool</h1>
-        <p class="lead">Select a tool from the sidebar to get started.</p>
-    </header>
-
-    <section class="team mb-5">
-        <h2 class="text-center mb-4">Our Team</h2>
-        <div class="row justify-content-center">
-            <div class="col-md-3 col-sm-6 text-center mb-4">
-                <div class="team-member">
-                    <img src="{{ url_for('static', filename='Tanish.jpg') }}" class="rounded-circle img-fluid mb-3 team-img" alt="Tanish Muralidhar">
-                    <h3 class="h5">Tanish Muralidhar</h3>
-                    <p class="text-muted">Rising senior at Rouse High School</p>
-                    <a href="https://www.linkedin.com/in/tanish-muralidhar-49a9b5232/" target="_blank">
-                        <img src="{{ url_for('static', filename='linkedin-icon.png') }}" alt="LinkedIn" width="24">
-                    </a>
+    <div class="container my-5">
+        <header class="text-center mb-5">
+            <h1 class="display-4">Welcome to the Financial Analysis Tool</h1>
+            <p class="lead">Select a tool from the sidebar to get started.</p>
+        </header>
+        <section class="team mb-5">
+            <h2 class="text-center mb-4">Our Team</h2>
+            <div class="row justify-content-center">
+                <div class="col-md-3 col-sm-6 text-center mb-4">
+                    <div class="team-member">
+                        <img src="{{ url_for('static', filename='Tanish.jpg') }}" class="rounded-circle img-fluid mb-3 team-img" alt="Tanish Muralidhar">
+                        <h3 class="h5">Tanish Muralidhar</h3>
+                        <p class="text-muted">Rising senior at Rouse High School</p>
+                        <a href="https://www.linkedin.com/in/tanish-muralidhar-49a9b5232/" target="_blank">
+                            <img src="{{ url_for('static', filename='linkedin-icon.png') }}" alt="LinkedIn" width="24">
+                        </a>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 text-center mb-4">
+                    <div class="team-member">
+                        <img src="{{ url_for('static', filename='Krishna.jpg') }}" class="rounded-circle img-fluid mb-3 team-img" alt="Krishna Chaitanya Perla">
+                        <h3 class="h5">Krishna Chaitanya Perla</h3>
+                        <p class="text-muted">Rising senior at Rouse High School</p>
+                        <a href="https://www.linkedin.com/in/krishna-chaitanya-perla-33a3bb24b/" target="_blank">
+                            <img src="{{ url_for('static', filename='linkedin-icon.png') }}" alt="LinkedIn" width="24">
+                        </a>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 text-center mb-4">
+                    <div class="team-member">
+                        <img src="{{ url_for('static', filename='Jayaditya.jpg') }}" class="rounded-circle img-fluid mb-3 team-img" alt="Jayaditya Vetsa">
+                        <h3 class="h5">Jayaditya Vetsa</h3>
+                        <p class="text-muted">Rising junior at Rouse High School</p>
+                        <a href="https://www.linkedin.com/in/jayaditya-vetsa-21b20b285/" target="_blank">
+                            <img src="{{ url_for('static', filename='linkedin-icon.png') }}" alt="LinkedIn" width="24">
+                        </a>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 text-center mb-4">
+                    <div class="team-member">
+                        <img src="{{ url_for('static', filename='Sai.jpg') }}" class="rounded-circle img-fluid mb-3 team-img" alt="Sai Venkat Saketh Veerapaneni">
+                        <h3 class="h5">Sai Venkat Saketh Veerapaneni</h3>
+                        <p class="text-muted">Rising junior at Rouse High School</p>
+                        <a href="https://www.linkedin.com/in/sai-veerapaneni-47a2701ab/" target="_blank">
+                            <img src="{{ url_for('static', filename='linkedin-icon.png') }}" alt="LinkedIn" width="24">
+                        </a>
+                    </div>
                 </div>
             </div>
-            <div class="col-md-3 col-sm-6 text-center mb-4">
-                <div class="team-member">
-                    <img src="{{ url_for('static', filename='Krishna.jpg') }}" class="rounded-circle img-fluid mb-3 team-img" alt="Krishna Chaitanya Perla">
-                    <h3 class="h5">Krishna Chaitanya Perla</h3>
-                    <p class="text-muted">Rising senior at Rouse High School</p>
-                    <a href="https://www.linkedin.com/in/krishna-chaitanya-perla-33a3bb24b/" target="_blank">
-                        <img src="{{ url_for('static', filename='linkedin-icon.png') }}" alt="LinkedIn" width="24">
-                    </a>
-                </div>
-            </div>
-            <div class="col-md-3 col-sm-6 text-center mb-4">
-                <div class="team-member">
-                    <img src="{{ url_for('static', filename='Jayaditya.jpg') }}" class="rounded-circle img-fluid mb-3 team-img" alt="Jayaditya Vetsa">
-                    <h3 class="h5">Jayaditya Vetsa</h3>
-                    <p class="text-muted">Rising junior at Rouse High School</p>
-                    <a href="https://www.linkedin.com/in/jayaditya-vetsa-21b20b285/" target="_blank">
-                        <img src="{{ url_for('static', filename='linkedin-icon.png') }}" alt="LinkedIn" width="24">
-                    </a>
-                </div>
-            </div>
-            <div class="col-md-3 col-sm-6 text-center mb-4">
-                <div class="team-member">
-                    <img src="{{ url_for('static', filename='Sai.jpg') }}" class="rounded-circle img-fluid mb-3 team-img" alt="Sai Venkat Saketh Veerapaneni">
-                    <h3 class="h5">Sai Venkat Saketh Veerapaneni</h3>
-                    <p class="text-muted">Rising junior at Rouse High School</p>
-                    <a href="https://www.linkedin.com/in/sai-veerapaneni-47a2701ab/" target="_blank">
-                        <img src="{{ url_for('static', filename='linkedin-icon.png') }}" alt="LinkedIn" width="24">
-                    </a>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <footer class="text-center">
-        <a href="mailto:financetoolsai@gmail.com" class="btn btn-dark btn-primary">
-            Contact us for any issues and feedback
-        </a>
-    </footer>
-</div>
+        </section>
+    
+        <footer class="text-center">
+            <a href="mailto:financetoolsai@gmail.com" class="btn btn-dark btn-primary">
+                Contact us for any issues and feedback
+            </a>
+        </footer>
+    </div>
 {% endblock %}
-
 <style>
     .team-member {
         display: flex;
@@ -111,4 +109,3 @@
         transform: scale(1.2);
     }
 </style>
-

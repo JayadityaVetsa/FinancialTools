@@ -8,11 +8,18 @@
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
+    <div class="text-center mb-4">
+        <a href="/guides" class="btn btn-primary btn-lg">Click here to go to the guides page</a>
+    </div>
     <div class="container mt-5">
         <h1 class="mb-4">SEC Fillings</h1>
         <form action="/SEC_Fillings" method="POST" class="needs-validation" novalidate>
             <div class="form-group">
-                <label for="ticker">Enter Ticker:</label>
+                <label for="ticker">Enter Ticker:
+                    <span class="d-inline-block" tabindex="0" data-toggle="tooltip" title="Enter the stock's ticker symbol (e.g., AAPL, GOOG).">
+                        <i class="fas fa-question-circle"></i>
+                    </span>
+                </label>
                 <input type="text" class="form-control" id="ticker" name="ticker" required>
             </div>
             <button type="submit" class="btn btn-dark btn-primary">Submit</button>
@@ -89,5 +96,11 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@1.16.1/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip()
+            })
+        })();    
+    </script>
 </body>
 {% endblock %}
