@@ -395,5 +395,47 @@ def SEC_Fillings():
                                 zip=zip)
     return render_template("SEC_Fillings.html")
 
+@app.route('/res-sup', methods=['GET','POST'])
+def res_sup():
+    if request.method == 'POST':
+        ticker = request.form['ticker'].upper()
+        lineIndex = float(request.form['lineIndex'])
+        lineIndex = 50 - lineIndex
+        hist_data = yf.Ticker(ticker).history(period="1d")
+        latest_price = hist_data['Close'].iloc[-1]
+        lineIndex = lineIndex * .003 * latest_price
+        df = yf.download(ticker, start="2022-06-24")
+        supports = df[df.Low == df.Low.rolling(5, center=True).min()].Low
+        resistances = df[df.High == df.High.rolling(5, center=True).max()].High
+        supports = supports[abs(supports.diff()) > lineIndex]
+        resistances = resistances[abs(resistances.diff()) > lineIndex]
+
+        df.Close.plot()
+        plt.figure(figsize=(14, 8))
+        plt.plot(df.Close, label='Close Price', color='blue')
+        for support in supports:
+            plt.axhline(support, linestyle='-', linewidth=1.5, color='green', label='Support' if 'Support' not in plt.gca().get_legend_handles_labels()[1] else "")
+        for resistance in resistances:
+            plt.axhline(resistance, linestyle='-', linewidth=1.5, color='red', label='Resistance' if 'Resistance' not in plt.gca().get_legend_handles_labels()[1] else "")
+        
+        plt.title(f'{ticker} Stock Price', fontsize=16)
+        plt.xlabel('Date', fontsize=14)
+        plt.ylabel('Price (USD)', fontsize=14)
+        plt.legend()
+        plt.grid(True)
+        plt.xticks(rotation=45)
+        # plt.hlines(supports, xmin=supports.index, xmax=df.index[-1], colors='green')
+        # plt.hlines(resistances, xmin=resistances.index, xmax=df.index[-1], colors='red')
+        # plt.title(f'{ticker} Stock Price')
+
+        buf = BytesIO()
+        plt.savefig(buf, format="png")
+        buf.seek(0)
+        plot_data = base64.b64encode(buf.getvalue()).decode('utf8')
+        plt.close()
+
+        return render_template('res_sup.html', plot_data=plot_data)
+    return render_template("res_sup.html")
+
 if __name__ == '__main__':
     app.run(debug=True)
