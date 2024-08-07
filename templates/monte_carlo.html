@@ -3,7 +3,7 @@
 {% block content %}
     <div class="container mt-4">
         <div class="text-center mb-4">
-            <a href="/guides#Monte_carlo" class="btn btn-primary btn-lg">Click here to go to the guide for Monte carlo</a>
+            <a href="/guides#Monte_carlo" class="btn btn-dark btn-primary btn-lg">Click here to go to the guide for Monte carlo</a>
         </div>
         <h1 class="text-center mb-4">Monte Carlo Simulation</h1>
         <form action="/monte-carlo" method="POST" class="needs-validation" novalidate>
@@ -26,12 +26,12 @@
                 <div class="invalid-feedback">Please provide the number of simulations.</div>
             </div>
             <div class="form-group">
-                <label for="days">Days (50-300):
+                <label for="days">Days (2-300):
                     <span class="d-inline-block" tabindex="0" data-toggle="tooltip" title="Enter the number of days you want this to simulate.">
                         <i class="fas fa-question-circle"></i>
                     </span>
                 </label>
-                <input type="number" id="days" name="days" class="form-control" placeholder="Number of days" value="100" min="50" max="300"required>
+                <input type="number" id="days" name="days" class="form-control" placeholder="Number of days" value="100" min="2" max="300"required>
                 <div class="invalid-feedback">Please provide the number of days.</div>
             </div>
             <button type="submit" class="btn btn-dark btn-primary btn-block">Simulate</button>
@@ -55,7 +55,7 @@
         <div class="alert alert-danger mt-4 text-center">{{ error }}</div>
         {% endif %}
     </div>
-    
+
     <script>
         // Example starter JavaScript for disabling form submissions if there are invalid fields
         (function () {
@@ -80,6 +80,6 @@
         $(function () {
             $('[data-toggle="tooltip"]').tooltip()
             })
-        })();    
+        })();
     </script>
 {% endblock %}

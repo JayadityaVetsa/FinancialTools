@@ -1,108 +1,88 @@
 {% extends "base.html" %}
-
-{% block title %}AI Summarizer{% endblock %}
-
+{% block title %}AI Transcript Analyzer{% endblock %}
 {% block content %}
     <div class="container mt-4">
         <div class="text-center mb-4">
-            <a href="/guides#AI_summarizer" class="btn btn-primary btn-lg">Click here to go to the guide for AI Summarizer</a>
+            <a href="/guides#AI_summarizer" class="btn btn-dark btn-primary btn-lg">Click here to go to the guide for AI Summarizer</a>
         </div>
         <div class="alert alert-warning text-center" role="alert">
             <strong>Notice:</strong> The AI summarizer tool is a bit slow since we are using a free api key, please wait for the responses.
-            <br><em>*Not financial advice</em>
+            <br><em>*AI is not financial advice</em>
         </div>
         <h1 class="text-center mb-4">AI Earnings Call Summarizer</h1>
-
-        <!-- Display error if any -->
-        {% if error %}
-        <div class="alert alert-danger">{{ error }}</div>
-        {% endif %}
-
-        <!-- Form for initial input if ticker, quarter, and year are not in session -->
-        <form action="/ai-summarizer" method="post" class="needs-validation" novalidate>
-            <div class="form-group">
-                <label for="ticker">Ticker:
-                    <span class="d-inline-block" tabindex="0" data-toggle="tooltip" title="Enter the stock's ticker symbol (e.g., AAPL, GOOG).">
-                        <i class="fas fa-question-circle"></i>
-                    </span>
-                </label>
-                <input type="text" id="ticker" name="ticker" class="form-control" placeholder="Enter stock ticker" required>
-                <div class="invalid-feedback">Please provide a ticker symbol.</div>
-            </div>
-            <div class="form-group">
-                <label for="quarter">Quarter:
-                    <span class="d-inline-block" tabindex="0" data-toggle="tooltip" title="Enter the Quarter you want to access (Q1, Q2, Q3, Q4).">
-                        <i class="fas fa-question-circle"></i>
-                    </span>
-                </label>
-                <input type="text" id="quarter" name="quarter" class="form-control" placeholder="Enter a Quarter" required>
-                <div class="invalid-feedback">Please provide a quarter.</div>
-            </div>
-            <div class="form-group">
-                <label for="year">Year:
-                    <span class="d-inline-block" tabindex="0" data-toggle="tooltip" title="Enter the Year (e.g., 2024, 2020).">
-                        <i class="fas fa-question-circle"></i>
-                    </span>
-                </label>
-                <input type="text" id="year" name="year" class="form-control" placeholder="Enter year" required>
-                <div class="invalid-feedback">Please provide a year.</div>
-            </div>
-            <button type="submit" class="btn btn-dark btn-primary">Submit</button>
-        </form>
-
-        <!-- Display predefined questions and answers in accordions -->
-        {% if predefined_answers %}
-        <hr>
-        <div class="accordion" id="predefinedAccordion">
-            <h2>{{ ticker }} earning calls in {{ quarter }}, {{ year }}</h2>
-            {% for header, answer in headers | zip(predefined_answers) %}
-            <div class="card">
-                <div class="card-header" id="heading{{ loop.index }}">
-                    <h2 class="mb-0">
-                        <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse{{ loop.index }}" aria-expanded="true" aria-controls="collapse{{ loop.index }}">
-                            {{ header }}
-                        </button>
-                    </h2>
-                </div>
-                <div id="collapse{{ loop.index }}" class="collapse" aria-labelledby="heading{{ loop.index }}" data-parent="#predefinedAccordion">
-                    <div class="card-body">
-                        {{ answer }}
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <form action="/ai-summarizer" method="post" class="needs-validation" novalidate>
+                    <div class="form-group">
+                        <label for="ticker">Ticker:
+                            <span class="d-inline-block" tabindex="0" data-toggle="tooltip" title="Enter the stock's ticker symbol (e.g., AAPL, GOOG).">
+                                <i class="fas fa-question-circle"></i>
+                            </span>
+                        </label>
+                        <input type="text" id="ticker" name="ticker" class="form-control" placeholder="Enter stock ticker" required>
+                        <div class="invalid-feedback">Please provide a ticker symbol.</div>
                     </div>
+                    <div class="form-group">
+                        <label for="quarter">Quarter:
+                            <span class="d-inline-block" tabindex="0" data-toggle="tooltip" title="Enter the Quarter you want to access (Q1, Q2, Q3, Q4).">
+                                <i class="fas fa-question-circle"></i>
+                            </span>
+                        </label>
+                        <select id="quarter" name="quarter" class="form-control" required>
+                            <option value="" disabled selected>Select a Quarter</option>
+                            <option value="Q1">Q1</option>
+                            <option value="Q2">Q2</option>
+                            <option value="Q3">Q3</option>
+                            <option value="Q4">Q4</option>
+                        </select>
+                        <div class="invalid-feedback">Please provide a quarter.</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="year">Year:
+                            <span class="d-inline-block" tabindex="0" data-toggle="tooltip" title="Enter the Year (e.g., 2024, 2020).">
+                                <i class="fas fa-question-circle"></i>
+                            </span>
+                        </label>
+                        <input type="text" id="year" name="year" class="form-control" placeholder="Enter year" required>
+                        <div class="invalid-feedback">Please provide a year.</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="question">Question:
+                            <span class="d-inline-block" tabindex="0" data-toggle="tooltip" title="Enter a question you want to ask the chatbot.">
+                                <i class="fas fa-question-circle"></i>
+                            </span>
+                        </label>
+                        <input type="text" id="question" name="question" class="form-control" placeholder="Enter question" required>
+                        <div class="invalid-feedback">Please provide a question.</div>
+                    </div>
+                    <button type="submit" class="btn btn-dark btn-primary">Submit</button>
+                </form>
+            </div>
+            <div class="col-md-6">
+                <h2 class="text-center">Recommended Questions</h2>
+                <div class="p-3 bg-light rounded">
+                    <ul class="list-unstyled">
+                        <li class="mb-2">Give me a very brief one sentence summary of this earnings call.</li>
+                        <li class="mb-2">Give me a summary of the earnings call.</li>
+                        <li class="mb-2">Give me a summary of the financials and how they changed from last quarter and last year. Were they in line with EPS investors' expectations?</li>
+                        <li class="mb-2">What is the forward guidance issued and what macroeconomic trends does the company expect to change or expect to be constant?</li>
+                        <li class="mb-2">What are some new product launches or new categories the company launched in the latest quarter?</li>
+                    </ul>
                 </div>
             </div>
-            {% endfor %}
         </div>
-        {% endif %}
-
-
-
-        <!-- Form for user-defined questions -->
-        {% if ticker and quarter and year %}
-        <hr>
-        <form action="/ai-summarizer" method="post" class="needs-validation" novalidate>
-            <div class="form-group">
-                <label for="question">Ask a New Question:</label>
-                <input type="text" id="question" name="question" class="form-control" placeholder="Question" required>
-                <div class="invalid-feedback">Please provide a question.</div>
+        {% if response %}
+            <div class="mt-4">
+                <h2 class="text-success">Question:</h2>
+                <p class="lead">{{ question }}</p>
+                <h2 class="text-success">Answer:</h2>
+                <p class="bg-light p-3 rounded">{{ response }}</p>
             </div>
-            <button type="submit" class="btn btn-dark btn-primary">Ask AI</button>
-        </form>
-        {% endif %}
-
-        <!-- Display user-defined question and response -->
-        {% if user_question and user_response %}
-        <div class="mt-4">
-            <h2 class="text-success">Question:</h2>
-            <p class="lead">{{ user_question }}</p>
-            <h2 class="text-success">Answer:</h2>
-            <p class="bg-light p-3 rounded">{{ user_response }}</p>
-        </div>
         {% endif %}
     </div>
     <script>
         $(function () {
-            $('[data-toggle="tooltip"]').tooltip()
-            })
-        })();    
+            $('[data-toggle="tooltip"]').tooltip();
+        });
     </script>
 {% endblock %}

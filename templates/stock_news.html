@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Stock News{% endblock %}
+{% block content %}
+<body>
+    <div class="container mt-4">
+        <div class="text-center mb-4">
+            <a href="/guides#stock_news" class="btn btn-dark btn-primary btn-lg">Click here to go to the guide for Stock News</a>
+        </div>
+        <div class="container mt-5">
+            <h1 class="mb-4">Stock News</h1>
+            <form action="/stock_news" method="POST" class="needs-validation" novalidate>
+                <div class="form-group">
+                    <label for="ticker">Enter Ticker:
+                        <span class="d-inline-block" tabindex="0" data-toggle="tooltip" title="Enter the stock's ticker symbol (e.g., AAPL, GOOG).">
+                            <i class="fas fa-question-circle"></i>
+                        </span>
+                    </label>
+                    <input type="text" class="form-control" id="ticker" name="ticker" required>
+                </div>
+                <button type="submit" class="btn btn-dark btn-primary">Submit</button>
+            </form>
+            {% if response %}
+                <div class="mt-4">
+                    <h2> <strong>AI Generated headline:</strong> {{ response }}</h2>
+                </div>
+            {% endif %}
+            <div class="row mt-4">
+                {% for title, url, site, image in news_title|zip(news_url, news_site, news_images) %}
+                    <div class="col-md-6 mb-4 d-flex align-items-stretch">
+                        <div class="card flex-fill" style="border-radius: 15px; background-color: #f8f9fa;">
+                            <a href="{{ url }}" target="_blank" style="text-decoration: none; color: inherit;">
+                                <div class="row no-gutters">
+                                    <div class="col-md-8">
+                                        <div class="card-body d-flex flex-column">
+                                            <h5 class="card-title">{{ title }}</h5>
+                                            <p class="card-text mt-auto"><span class="badge badge-secondary">{{ site }}</span></p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <img src="{{ image }}" class="card-img" alt="news image" style="border-radius: 0 15px 15px 0; max-width: 100%; height: auto;">
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip()
+    });
+</script>
+{% endblock %}

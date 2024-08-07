@@ -8,91 +8,116 @@
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-    <div class="text-center mb-4">
-        <a href="/guides#SEC_filings" class="btn btn-primary btn-lg">Click here to go to the guide for SEC filings</a>
+    <div class="container mt-4">
+        <div class="text-center mb-4">
+            <a href="/guides#SEC_filings" class="btn btn-dark btn-primary btn-lg">Click here to go to the guide for SEC filings</a>
+        </div>
+        <div class="container mt-5">
+            <h1 class="mb-4">SEC Fillings</h1>
+            <form action="/SEC_Fillings" method="POST" class="needs-validation" novalidate>
+                <div class="form-group">
+                    <label for="ticker">Enter Ticker:
+                        <span class="d-inline-block" tabindex="0" data-toggle="tooltip" title="Enter the stock's ticker symbol (e.g., AAPL, GOOG).">
+                            <i class="fas fa-question-circle"></i>
+                        </span>
+                    </label>
+                    <input type="text" class="form-control" id="ticker" name="ticker" required>
+                </div>
+                <button type="submit" class="btn btn-dark btn-primary">Submit</button>
+            </form>
+    
+            <div class="row mt-5">
+                {% if links_10q and dates_10q %}
+                <div class="col">
+                    <h2>10-Q Filings</h2>
+                    <table class="table table-striped table-bordered">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th>Filing Date</th>
+                                <th>Link to 10-Q</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for date, link in zip(dates_10q, links_10q) %}
+                            <tr>
+                                <td>{{ date }}</td>
+                                <td><a href="{{ link }}" target="_blank" class="btn btn-link">View 10-Q</a></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% endif %}
+    
+                {% if links_10K and dates_10k %}
+                <div class="col">
+                    <h2>10-K Filings</h2>
+                    <table class="table table-striped table-bordered">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th>Filing Date</th>
+                                <th>Link to 10-K</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for date, link in zip(dates_10k, links_10K) %}
+                            <tr>
+                                <td>{{ date }}</td>
+                                <td><a href="{{ link }}" target="_blank" class="btn btn-link">View 10-K</a></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% endif %}
+    
+                {% if links_4 and dates_4 %}
+                <div class="col">
+                    <h2>Form 4 Filings</h2>
+                    <table class="table table-striped table-bordered">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th>Filing Date</th>
+                                <th>Link to Form 4</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for date, link in zip(dates_4, links_4) %}
+                            <tr>
+                                <td>{{ date }}</td>
+                                <td><a href="{{ link }}" target="_blank" class="btn btn-link">View Form 4</a></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% endif %}
+    
+                {% if links_8k and dates_8k %}
+                    <div class="col">
+                        <h2>Form 8-K Filings</h2>
+                        <table class="table table-striped table-bordered">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th>Filing Date</th>
+                                    <th>Link to Form 8-K</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for date, link in zip(dates_8k, links_8k) %}
+                                <tr>
+                                    <td>{{ date }}</td>
+                                    <td><a href="{{ link }}" target="_blank" class="btn btn-link">View Form 8-K</a></td>
+                                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
-    <div class="container mt-5">
-        <h1 class="mb-4">SEC Fillings</h1>
-        <form action="/SEC_Fillings" method="POST" class="needs-validation" novalidate>
-            <div class="form-group">
-                <label for="ticker">Enter Ticker:
-                    <span class="d-inline-block" tabindex="0" data-toggle="tooltip" title="Enter the stock's ticker symbol (e.g., AAPL, GOOG).">
-                        <i class="fas fa-question-circle"></i>
-                    </span>
-                </label>
-                <input type="text" class="form-control" id="ticker" name="ticker" required>
+    {% endif %}
             </div>
-            <button type="submit" class="btn btn-dark btn-primary">Submit</button>
-        </form>
-
-        <div class="row mt-5">
-            {% if links_10q and dates_10q %}
-            <div class="col">
-                <h2>10-Q Filings</h2>
-                <table class="table table-striped table-bordered">
-                    <thead class="thead-dark">
-                        <tr>
-                            <th>Filing Date</th>
-                            <th>Link to 10-Q</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for date, link in zip(dates_10q, links_10q) %}
-                        <tr>
-                            <td>{{ date }}</td>
-                            <td><a href="{{ link }}" target="_blank" class="btn btn-link">View 10-Q</a></td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            {% endif %}
-
-            {% if links_10K and dates_10k %}
-            <div class="col">
-                <h2>10-K Filings</h2>
-                <table class="table table-striped table-bordered">
-                    <thead class="thead-dark">
-                        <tr>
-                            <th>Filing Date</th>
-                            <th>Link to 10-K</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for date, link in zip(dates_10k, links_10K) %}
-                        <tr>
-                            <td>{{ date }}</td>
-                            <td><a href="{{ link }}" target="_blank" class="btn btn-link">View 10-K</a></td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            {% endif %}
-
-            {% if links_4 and dates_4 %}
-            <div class="col">
-                <h2>Form 4 Filings</h2>
-                <table class="table table-striped table-bordered">
-                    <thead class="thead-dark">
-                        <tr>
-                            <th>Filing Date</th>
-                            <th>Link to Form 4</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for date, link in zip(dates_4, links_4) %}
-                        <tr>
-                            <td>{{ date }}</td>
-                            <td><a href="{{ link }}" target="_blank" class="btn btn-link">View Form 4</a></td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            {% endif %}
         </div>
     </div>
+
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@1.16.1/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
@@ -100,7 +125,7 @@
         $(function () {
             $('[data-toggle="tooltip"]').tooltip()
             })
-        })();    
+        })();
     </script>
 </body>
 {% endblock %}

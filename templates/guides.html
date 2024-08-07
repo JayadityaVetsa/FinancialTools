@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Home{% endblock %}
+{% block title %}Guides{% endblock %}
 
 {% block content %}
     <div class="container my-5">
@@ -71,6 +71,23 @@
                 <img src="{{ url_for('static', filename='SEC_fillings1.jpg') }}" alt="SEC_fillings" class="img-fluid mb-3">
                 <p>Our SEC Filings feature allows you to easily look up a company’s reports, such as quarterly and annual reports, Form 4 (buying and selling of stocks/options by executives/employees/board members), and Form 8-K (major changes, acquisitions, or asset dispositions).</p>
                 <p>With our tool, you can access these forms with a single click, saving you time from searching through a company’s investor relations page as each company's website is formatted differently.</p>
+            </div>
+        </div>
+
+        <!-- Stock News Guide Section -->
+        <div class="card mb-5" id="stock_news">
+            <div class="card-header">
+                <h2 class="card-title">Stock News Guide</h2>
+            </div>
+            <div class="card-body">
+                <img src="{{ url_for('static', filename='stock_news.jpg') }}" alt="stock_news" class="img-fluid mb-3">
+                <p>The Stock News feature helps you stay updated with the latest news related to your favorite stocks. Here's how it works:</p>
+                <ul class="list-group">
+                    <li class="list-group-item">Enter the stock ticker symbol (e.g., AAPL, GOOG) to fetch the latest news articles related to that stock.</li>
+                    <li class="list-group-item">The AI feature processes the news articles and extracts key information, providing you with a summary and the source of each article.</li>
+                    <li class="list-group-item">You can click on the provided links to read the full articles on their respective websites.</li>
+                </ul>
+                <p>This feature helps you quickly get an overview of the latest developments and news for any stock you are interested in, saving you time and effort in staying informed.</p>
             </div>
         </div>
 
