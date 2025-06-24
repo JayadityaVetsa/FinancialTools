@@ -3,38 +3,26 @@
 {% block content %}
     <div class="container mt-4">
         <div class="text-center mb-4">
-            <a href="/guides#Monte_carlo" class="btn btn-dark btn-primary btn-lg">Click here to go to the guide for Monte carlo</a>
+            <a href="/guides#Monte_carlo" class="btn btn-custom btn-lg">Click here to go to the guide for Monte carlo</a>
         </div>
         <h1 class="text-center mb-4">Monte Carlo Simulation</h1>
         <form action="/monte-carlo" method="POST" class="needs-validation" novalidate>
             <div class="form-group">
-                <label for="ticker">Ticker:
-                    <span class="d-inline-block" tabindex="0" data-toggle="tooltip" title="Enter the stock's ticker symbol (e.g., AAPL, GOOG).">
-                        <i class="fas fa-question-circle"></i>
-                    </span>
-                </label>
+                <label for="ticker">Ticker:</label>
                 <input type="text" id="ticker" name="ticker" class="form-control" placeholder="Enter stock ticker" required>
                 <div class="invalid-feedback">Please provide a ticker symbol.</div>
             </div>
             <div class="form-group">
-                <label for="simulations">Simulations (10-100):
-                    <span class="d-inline-block" tabindex="0" data-toggle="tooltip" title="Enter the number of simulations you want to run.">
-                        <i class="fas fa-question-circle"></i>
-                    </span>
-                </label>
-                <input type="number" id="simulations" name="simulations" class="form-control" placeholder="Number of simulations" value="50" min="10" max="100" required>
+                <label for="simulations">Simulations (100-1000):</label>
+                <input type="number" id="simulations" name="simulations" class="form-control" placeholder="Number of simulations" value="500" min="100" max="1000" required>
                 <div class="invalid-feedback">Please provide the number of simulations.</div>
             </div>
             <div class="form-group">
-                <label for="days">Days (2-300):
-                    <span class="d-inline-block" tabindex="0" data-toggle="tooltip" title="Enter the number of days you want this to simulate.">
-                        <i class="fas fa-question-circle"></i>
-                    </span>
-                </label>
+                <label for="days">Days (2-300):</label>
                 <input type="number" id="days" name="days" class="form-control" placeholder="Number of days" value="100" min="2" max="300"required>
                 <div class="invalid-feedback">Please provide the number of days.</div>
             </div>
-            <button type="submit" class="btn btn-dark btn-primary btn-block">Simulate</button>
+            <button type="submit" class="btn btn-custom btn-block">Simulate</button>
         </form>
 
         {% if plot_data %}
@@ -51,8 +39,11 @@
             </div>
         </div>
         <hr>
-        {% elif error %}
-        <div class="alert alert-danger mt-4 text-center">{{ error }}</div>
+        {% endif %}
+        {% if error %}
+            <div class="alert alert-danger alert-dismissible fade show mt-4" role="alert">
+                <strong>Error:</strong> {{ error }}
+            </div>
         {% endif %}
     </div>
 
@@ -74,12 +65,6 @@
                     }, false);
                 });
             }, false);
-        })();
-    </script>
-    <script>
-        $(function () {
-            $('[data-toggle="tooltip"]').tooltip()
-            })
         })();
     </script>
 {% endblock %}

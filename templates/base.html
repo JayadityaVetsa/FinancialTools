@@ -3,12 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Financial Tools{% endblock %}</title>
+    <meta name="description" content="Discover free AI-driven financial tools for investors, including AI Earnings Call Summarizer, SEC Filings, Stock News, DCF Analysis, and Monte Carlo Simulation.">
+    <meta name="keywords" content="AI financial tools, investors, stock analysis, earnings call summarizer, SEC filings, DCF analysis, Monte Carlo simulation, Tanish Muralidhar, Krishna Chaitanya Perla, Jayaditya Vetsa, Sai Venkat Saketh Veerapaneni, Rouse High School ">
+    <meta name="author" content="Tanish Muralidhar, Krishna Chaitanya Perla, Jayaditya Vetsa, Sai Venkat Saketh Veerapaneni, Finance Tools AI, Rouse High School">
+    <title>{% block title %}Financial Tools - Free AI Tools for Investors{% endblock %}</title>
+
+    <!-- Open Graph Tags -->
+    <meta property="og:title" content="Finance Tools AI">
+    <meta property="og:description" content="Free AI financial tools for investors.">
+    <meta property="og:url" content="https://financetoolsai.pythonanywhere.com/">
+    <meta property="og:type" content="website">
+
     <!-- Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Font Awesome CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Montserrat:wght@400;700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
 
     <!-- Bootstrap JS and Popper.js -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
@@ -16,34 +29,65 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='base.css') }}">
 
+    <!-- SEO Improvements CSS -->
+    <style>
+        .card-custom {
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .mission-card {
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+    </style>
 </head>
 <body>
-    <!-- Hamburger menu -->
-    <label class="hamburger-menu">
-        <input type="checkbox" onclick="toggleSidebar()" />
-    </label>
+    <header>
+        <!-- Hamburger menu -->
+        <label class="hamburger-menu">
+            <input type="checkbox" onclick="toggleSidebar()" />
+        </label>
 
-    <!-- Sidebar -->
-    <div class="sidebar">
-        <h1 class="text-light"><strong>Financial Tools AI</strong></h1>
-        <hr class="bg-light">
-        <a class="text-light" href="/">Home</a>
-        <a class="text-light" href="/ai-summarizer">AI Earnings Call Summarizer</a>
-        <a class="text-light" href="/SEC_Fillings">SEC Fillings</a>
-        <a class="text-light" href="/stock_news">Stock News</a>
-        <a class="text-light" href="/dcf-analysis">DCF Analysis</a>
-        <a class="text-light" href="/monte-carlo">Monte Carlo Simulation</a>
-    </div>
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <h1 class="text-light"><strong>Finance Tools AI</strong></h1>
+            <hr class="bg-light">
+            <a class="text-light font-montserrat" href="/">Home</a>
+            <a class="text-light font-montserrat" href="/ai-summarizer">AI Earnings Call Summarizer</a>
+            <a class="text-light font-montserrat" href="/SEC_Fillings">SEC Filings</a>
+            <a class="text-light font-montserrat" href="/stock_news">Stock News</a>
+            <a class="text-light font-montserrat" href="/dcf-analysis">DCF Analysis</a>
+            <a class="text-light font-montserrat" href="/monte-carlo">Monte Carlo Simulation</a>
+        </nav>
+    </header>
 
     <!-- Main content -->
-    <div class="content">
+    <main class="content">
         {% block content %}{% endblock %}
-    </div>
+    </main>
 
     <!-- Include Bootstrap JS and dependencies -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.4.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <!-- Bootstrap button override -->
+    <style>
+        .btn-custom {
+            background-color: white !important;
+            color: #1064c4 !important;
+            border-color: #1064c4 !important;
+        }
+
+        .btn-custom:hover {
+            background-color: #9dc5f2 !important;
+            border-color: #0d407a !important;
+            color: #0d407a !important;
+        }
+    </style>
 
     <!-- Validation script -->
     <script>

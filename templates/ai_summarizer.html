@@ -1,88 +1,142 @@
 {% extends "base.html" %}
 {% block title %}AI Transcript Analyzer{% endblock %}
+
 {% block content %}
-    <div class="container mt-4">
-        <div class="text-center mb-4">
-            <a href="/guides#AI_summarizer" class="btn btn-dark btn-primary btn-lg">Click here to go to the guide for AI Summarizer</a>
+<style>
+    /* Styling for your original buttons */
+    .btn-custom {
+        /* Your original btn-custom styles */
+        background-color: #007bff;
+        color: white;
+    }
+    .btn-custom:hover {
+        background-color: #0056b3;
+    }
+    
+    /* Styling for the new result cards */
+    .result-card {
+        margin-top: 1.5rem;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        border: 1px solid #e9ecef;
+    }
+    .result-card .card-header {
+        background-color: #f8f9fa;
+        font-weight: bold;
+    }
+    .disclaimer-box {
+        background-color: #fff3cd;
+        border-left: 5px solid #ffc107;
+        padding: 1rem;
+        margin-top: 1rem;
+        border-radius: 0.25rem;
+    }
+</style>
+
+<div class="container mt-4">
+    <div class="text-center mb-4">
+        <a href="/guides#AI_summarizer" class="btn btn-custom">Click here to go to the guide for AI Summarizer</a>
+    </div>
+
+    <div class="alert alert-warning text-center" role="alert">
+        <strong>Notice:</strong> AI summarizer tool may have some delay, please be patient. The transcript data takes ~12 hours to obtain after the live event, and responses are generated using earning call transcripts not the web.
+        <br><em>*AI is not a replacement for professional financial advice, don't make decisions solely based off AI alone</em>
+    </div>
+
+    <h1 class="text-center mb-4">AI Earnings Call Summarizer</h1>
+    <div class="row">
+        <!-- Input Form Column -->
+        <div class="col-md-6 mb-4">
+            <form action="/ai-summarizer" method="post">
+                <!-- Form fields from your previous version -->
+                <div class="form-group">
+                    <label for="ticker">Ticker:</label>
+                    <input type="text" id="ticker" name="ticker" class="form-control" placeholder="Enter stock ticker" value="{{ ticker or '' }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="quarter">Quarter:</label>
+                    <select id="quarter" name="quarter" class="form-control" required>
+                        <option value="" disabled {% if not quarter %}selected{% endif %}>Select a Quarter</option>
+                        <option value="1" {% if quarter == '1' %}selected{% endif %}>Q1</option>
+                        <option value="2" {% if quarter == '2' %}selected{% endif %}>Q2</option>
+                        <option value="3" {% if quarter == '3' %}selected{% endif %}>Q3</option>
+                        <option value="4" {% if quarter == '4' %}selected{% endif %}>Q4</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="year">Year:</label>
+                    <input type="text" id="year" name="year" class="form-control" placeholder="Enter year" value="{{ year or '' }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="question">Question:</label>
+                    <input type="text" id="question" name="question" class="form-control" placeholder="Enter question" value="{{ question or '' }}" required>
+                </div>
+                <button type="submit" class="btn btn-custom">Submit</button>
+            </form>
         </div>
-        <div class="alert alert-warning text-center" role="alert">
-            <strong>Notice:</strong> The AI summarizer tool is a bit slow since we are using a free api key, please wait for the responses.
-            <br><em>*AI is not financial advice</em>
-        </div>
-        <h1 class="text-center mb-4">AI Earnings Call Summarizer</h1>
-        <div class="row">
-            <div class="col-md-6 mb-4">
-                <form action="/ai-summarizer" method="post" class="needs-validation" novalidate>
-                    <div class="form-group">
-                        <label for="ticker">Ticker:
-                            <span class="d-inline-block" tabindex="0" data-toggle="tooltip" title="Enter the stock's ticker symbol (e.g., AAPL, GOOG).">
-                                <i class="fas fa-question-circle"></i>
-                            </span>
-                        </label>
-                        <input type="text" id="ticker" name="ticker" class="form-control" placeholder="Enter stock ticker" required>
-                        <div class="invalid-feedback">Please provide a ticker symbol.</div>
-                    </div>
-                    <div class="form-group">
-                        <label for="quarter">Quarter:
-                            <span class="d-inline-block" tabindex="0" data-toggle="tooltip" title="Enter the Quarter you want to access (Q1, Q2, Q3, Q4).">
-                                <i class="fas fa-question-circle"></i>
-                            </span>
-                        </label>
-                        <select id="quarter" name="quarter" class="form-control" required>
-                            <option value="" disabled selected>Select a Quarter</option>
-                            <option value="Q1">Q1</option>
-                            <option value="Q2">Q2</option>
-                            <option value="Q3">Q3</option>
-                            <option value="Q4">Q4</option>
-                        </select>
-                        <div class="invalid-feedback">Please provide a quarter.</div>
-                    </div>
-                    <div class="form-group">
-                        <label for="year">Year:
-                            <span class="d-inline-block" tabindex="0" data-toggle="tooltip" title="Enter the Year (e.g., 2024, 2020).">
-                                <i class="fas fa-question-circle"></i>
-                            </span>
-                        </label>
-                        <input type="text" id="year" name="year" class="form-control" placeholder="Enter year" required>
-                        <div class="invalid-feedback">Please provide a year.</div>
-                    </div>
-                    <div class="form-group">
-                        <label for="question">Question:
-                            <span class="d-inline-block" tabindex="0" data-toggle="tooltip" title="Enter a question you want to ask the chatbot.">
-                                <i class="fas fa-question-circle"></i>
-                            </span>
-                        </label>
-                        <input type="text" id="question" name="question" class="form-control" placeholder="Enter question" required>
-                        <div class="invalid-feedback">Please provide a question.</div>
-                    </div>
-                    <button type="submit" class="btn btn-dark btn-primary">Submit</button>
-                </form>
+        <!-- Recommended Questions Column -->
+        <div class="col-md-6">
+            <h2 class="text-center">Recommended Questions</h2>
+            <h4 class="text-center">You can click the questions below to autofill the field for the question.</h4>
+            <div class="p-3 bg-light rounded text-center d-flex flex-column align-items-center">
+                <button class="btn btn-light mb-2" onclick="fillQuestion('Give me a very brief one sentence summary of this earnings call.')">Give me a very brief one sentence summary of this earnings call.</button>
+                <button class="btn btn-light mb-2" onclick="fillQuestion('Give me a summary of the earnings call.')">Give me a summary of the earnings call.</button>
+                <button class="btn btn-light mb-2" onclick="fillQuestion('What is the forward guidance issued and what macroeconomic trends does the company expect to change or expect to be constant?')">What is the forward guidance and expected macroeconomic trends?</button>
+                <button class="btn btn-light mb-2" onclick="fillQuestion('What were the biggest challenges mentioned during the call?')">What were the biggest challenges mentioned?</button>
             </div>
-            <div class="col-md-6">
-                <h2 class="text-center">Recommended Questions</h2>
-                <div class="p-3 bg-light rounded">
-                    <ul class="list-unstyled">
-                        <li class="mb-2">Give me a very brief one sentence summary of this earnings call.</li>
-                        <li class="mb-2">Give me a summary of the earnings call.</li>
-                        <li class="mb-2">Give me a summary of the financials and how they changed from last quarter and last year. Were they in line with EPS investors' expectations?</li>
-                        <li class="mb-2">What is the forward guidance issued and what macroeconomic trends does the company expect to change or expect to be constant?</li>
-                        <li class="mb-2">What are some new product launches or new categories the company launched in the latest quarter?</li>
+        </div>
+    </div>
+
+    <!-- Error Display -->
+    {% if error %}
+        <div class="alert alert-danger alert-dismissible fade show mt-4" role="alert">
+            <strong>Error:</strong> {{ error }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endif %}
+
+    <!-- NEW: DUAL-SECTION AI RESPONSE AREA -->
+    {% if ai_analysis %}
+        <div class="mt-4">
+            <!-- Part 1: General Analysis Card -->
+            <div class="card result-card">
+                <div class="card-header">{{ ai_analysis.general_analysis.title }}</div>
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-2 text-muted">Overall Summary</h6>
+                    <p class="card-text">{{ ai_analysis.general_analysis.summary }}</p>
+                    <h6 class="card-subtitle mt-3 mb-2 text-muted">Key Themes from the Call</h6>
+                    <ul class="list-group list-group-flush">
+                        {% for point in ai_analysis.general_analysis.key_points %}
+                            <li class="list-group-item ps-0">{{ point }}</li>
+                        {% endfor %}
                     </ul>
                 </div>
             </div>
-        </div>
-        {% if response %}
-            <div class="mt-4">
-                <h2 class="text-success">Question:</h2>
-                <p class="lead">{{ question }}</p>
-                <h2 class="text-success">Answer:</h2>
-                <p class="bg-light p-3 rounded">{{ response }}</p>
+
+            <!-- Part 2: Specific Answer Card -->
+            <div class="card result-card">
+                <div class="card-header">{{ ai_analysis.specific_answer.title }}: <span class="fw-normal fst-italic">"{{ question }}"</span></div>
+                <div class="card-body">
+                    
+                    <!-- CRITICAL: Disclaimer box for inferred answers -->
+                    {% if ai_analysis.specific_answer.is_inferred %}
+                    <div class="disclaimer-box">
+                        <p class="mb-1"><strong><i class="bi bi-exclamation-triangle-fill"></i> Inferred Answer Advisory</strong></p>
+                        <p class="mb-0 small">{{ ai_analysis.specific_answer.reasoning_and_disclaimer }}</p>
+                    </div>
+                    {% endif %}
+
+                    <h6 class="card-subtitle mt-3 mb-2 text-muted">Answer</h6>
+                    <p class="card-text">{{ ai_analysis.specific_answer.answer }}</p>
+                </div>
             </div>
-        {% endif %}
-    </div>
-    <script>
-        $(function () {
-            $('[data-toggle="tooltip"]').tooltip();
-        });
-    </script>
+        </div>
+    {% endif %}
+
+</div>
+
+<script>
+    function fillQuestion(text) {
+        document.getElementById('question').value = text;
+    }
+</script>
 {% endblock %}

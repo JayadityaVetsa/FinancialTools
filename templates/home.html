@@ -1,9 +1,10 @@
 {% extends "base.html" %}
 
-{% block title %}Home{% endblock %}
+{% block title %}Finance Tools AI | Home{% endblock %}
 
 {% block content %}
 <div class="container my-5">
+
     <header class="text-center mb-5">
         <h1 class="display-4 mb-4">Welcome to the Financial Analysis Tool</h1>
         <p class="lead">Select a tool from the sidebar to get started.</p>
@@ -11,15 +12,32 @@
 
     <section class="mission mb-5">
         <h2 class="text-center mb-4 text-dark">Our Mission</h2>
-        <div class="p-4 bg-light border rounded">
-            <p class="lead">Welcome to our finance tools website, crafted by a team of four high school students from Rouse High School, driven by a shared passion for computer science and finance. Our mission is to empower both beginners and seasoned professionals in the financial world with accessible, top-tier tools, completely free of charge.</p>
+        <div class="card card-custom">
+            <p class="lead">Welcome to our finance tools website, crafted by a team of four students from Rouse High School in Leander, Texas, driven by a shared passion for computer science and finance. Our mission is to empower both beginners and seasoned professionals in the financial world with accessible, top-tier tools, completely free of charge.</p>
+        </div>
+    </section>
 
-            <h3 class="mt-4 text-dark">What Makes Our Website Unique?</h3>
-            <ul class="list-unstyled p-4 bg-white border rounded">
-                <li class="mb-3"><strong>Comprehensive Free Services:</strong> Unlike many platforms that charge for premium features, we offer every essential service an investor needs at no cost.</li>
-                <li class="mb-3"><strong>Unmatched Convenience:</strong> Our tools, such as the SEC forms lookup, save you time by compiling all necessary documents from companies' investor relations webpages or the SEC website into one easily accessible location. With just one click, you have everything you need at your fingertips.</li>
-                <li class="mb-3"><strong>Guides for All Levels:</strong> We provide guides to help beginners who are new to investing, while also offering the complexity and depth of tools required by professionals and hobbyists who enjoy diving deep into data.</li>
-            </ul>
+    <section class="unique-features mb-5">
+        <h2 class="text-center mb-4 text-dark">What Makes Our Website Unique?</h2>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card card-custom">
+                    <h3 class="text-center">Comprehensive Free Services</h3>
+                    <p class="lead">Unlike many platforms that charge for premium features, we offer essential services an investor needs at no cost.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card card-custom">
+                    <h3 class="text-center">Unmatched Convenience</h3>
+                    <p class="lead">Our tools, such as the Securities and Exchange Commission (SEC) forms lookup, save you time by compiling all necessary documents from companies' investor relations webpages or the SEC website into one easily accessible location. With just one click, you have everything you need at your fingertips.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card card-custom">
+                    <h3 class="text-center">Guides for All Levels</h3>
+                    <p class="lead">We provide guides to help beginners who are new to investing, while also offering the complexity and depth of tools required by professionals and hobbyists who enjoy diving deep into data.</p>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -70,76 +88,9 @@
     </section>
 
     <footer class="text-center">
-        <a href="mailto:financetoolsai@gmail.com" class="btn btn-dark btn-primary">
+        <a href="mailto:financetoolsai@gmail.com" class="btn btn-custom">
             Contact us for any issues and feedback
         </a>
     </footer>
 </div>
 {% endblock %}
-
-<style>
-    .team-member {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .team-img {
-        width: 150px;
-        height: 150px;
-        object-fit: cover;
-        border: 2px solid #ccc;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        transition: transform 0.2s, box-shadow 0.2s;
-    }
-
-    .team-img:hover {
-        transform: scale(1.05);
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-    }
-
-    .btn-primary {
-        background-color: #000000;
-        border-color: #000000;
-        padding: 10px 20px;
-        border-radius: 5px;
-        transition: background-color 0.3s, transform 0.3s;
-    }
-
-    .btn-primary:hover {
-        background-color: #333333;
-        border-color: #333333;
-        transform: scale(1.05);
-    }
-
-    .btn-primary a {
-        color: white;
-        text-decoration: none;
-    }
-
-    .bi-linkedin {
-        transition: transform 0.3s;
-    }
-
-    .bi-linkedin:hover {
-        transform: scale(1.2);
-    }
-
-    .list-unstyled {
-        padding: 20px;
-        border-radius: 10px;
-        background-color: #f8f9fa;
-    }
-
-    .lead {
-        color: #000000;
-    }
-
-    h2.text-dark, h3.text-dark {
-        color: #000000 !important;
-    }
-
-    .border {
-        border: 2px solid #000000;
-    }
-</style>

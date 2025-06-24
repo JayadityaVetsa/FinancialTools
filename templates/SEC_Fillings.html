@@ -10,22 +10,23 @@
 <body>
     <div class="container mt-4">
         <div class="text-center mb-4">
-            <a href="/guides#SEC_filings" class="btn btn-dark btn-primary btn-lg">Click here to go to the guide for SEC filings</a>
+            <a href="/guides#SEC_filings" class="btn btn-custom">Click here to go to the guide for SEC filings</a>
         </div>
         <div class="container mt-5">
             <h1 class="mb-4">SEC Fillings</h1>
             <form action="/SEC_Fillings" method="POST" class="needs-validation" novalidate>
                 <div class="form-group">
-                    <label for="ticker">Enter Ticker:
-                        <span class="d-inline-block" tabindex="0" data-toggle="tooltip" title="Enter the stock's ticker symbol (e.g., AAPL, GOOG).">
-                            <i class="fas fa-question-circle"></i>
-                        </span>
-                    </label>
+                    <label for="ticker">Enter Ticker:</label>
                     <input type="text" class="form-control" id="ticker" name="ticker" required>
                 </div>
-                <button type="submit" class="btn btn-dark btn-primary">Submit</button>
+                <button type="submit" class="btn btn-custom btn-primary btn-lg">Submit</button>
             </form>
-    
+            {% if error %}
+                <div class="alert alert-danger alert-dismissible fade show mt-4" role="alert">
+                    <strong>Error:</strong> {{ error }}
+                </div>
+            {% endif %}
+
             <div class="row mt-5">
                 {% if links_10q and dates_10q %}
                 <div class="col">
@@ -48,7 +49,7 @@
                     </table>
                 </div>
                 {% endif %}
-    
+
                 {% if links_10K and dates_10k %}
                 <div class="col">
                     <h2>10-K Filings</h2>
@@ -70,7 +71,50 @@
                     </table>
                 </div>
                 {% endif %}
-    
+                  {% if links_6k and dates_6k %}
+                <div class="col">
+                    <h2>6-K Filings</h2>
+                    <table class="table table-striped table-bordered">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th>Filing Date</th>
+                                <th>Link to 6-K</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for date, link in zip(dates_6k, links_6k) %}
+                            <tr>
+                                <td>{{ date }}</td>
+                                <td><a href="{{ link }}" target="_blank" class="btn btn-link">View 6-K</a></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% endif %}
+
+                {% if links_13g and dates_13g%}
+                <div class="col">
+                    <h2>13-G Filings</h2>
+                    <table class="table table-striped table-bordered">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th>Filing Date</th>
+                                <th>Link to 13-G</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for date, link in zip(dates_13g, links_13g) %}
+                            <tr>
+                                <td>{{ date }}</td>
+                                <td><a href="{{ link }}" target="_blank" class="btn btn-link">View 13-G</a></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% endif %}
+
                 {% if links_4 and dates_4 %}
                 <div class="col">
                     <h2>Form 4 Filings</h2>
@@ -92,7 +136,7 @@
                     </table>
                 </div>
                 {% endif %}
-    
+
                 {% if links_8k and dates_8k %}
                     <div class="col">
                         <h2>Form 8-K Filings</h2>
@@ -114,18 +158,12 @@
         </table>
     </div>
     {% endif %}
+
             </div>
         </div>
     </div>
-
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@1.16.1/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script>
-        $(function () {
-            $('[data-toggle="tooltip"]').tooltip()
-            })
-        })();
-    </script>
 </body>
 {% endblock %}

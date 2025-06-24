@@ -3,7 +3,7 @@
 {% block content %}
     <div class="container mt-4">
          <div class="text-center mb-4">
-            <a href="/guides#DCF_analysis" class="btn btn-dark btn-primary btn-lg">Click here to go to the guide for DCF analysis</a>
+            <a href="/guides#DCF_analysis" class="btn btn-custom">Click here to go to the guide for DCF analysis</a>
         </div>
         <div class="alert alert-warning text-center" role="alert">
             Warning: Don't use for holding companies, sum of parts companies, companies with negative free cash flow/unprofitable
@@ -12,28 +12,20 @@
         <h1 class="text-center mb-4">DCF Stock Intrinsic Value Calculator</h1>
         <form action="/dcf-analysis" method="post" class="needs-validation mb-5" novalidate>
             <div class="form-group">
-                <label for="ticker">Enter Ticker
-                    <span class="d-inline-block" tabindex="0" data-toggle="tooltip" title="Enter the stock's ticker symbol (e.g., AAPL, GOOG).">
-                        <i class="fas fa-question-circle"></i>
-                    </span>
-                </label>
+                <label for="ticker">Enter Ticker:</label>
                 <input type="text" class="form-control" id="ticker" name="ticker" required>
                 <div class="invalid-feedback">
                     Please enter a valid ticker.
                 </div>
             </div>
             <div class="form-group">
-                <label for="growthRate">Growth Rate (%)
-                    <span class="d-inline-block" tabindex="0" data-toggle="tooltip" title="Enter the expected annual growth rate as a percentage (e.g., 10, 15).">
-                        <i class="fas fa-question-circle"></i>
-                    </span>
-                </label>
+                <label for="growthRate">Growth Rate (%)</label>
                 <input type="number" step="0.01" class="form-control" id="growthRate" name="growthRate" required>
                 <div class="invalid-feedback">
                     Please enter a valid growth rate.
                 </div>
             </div>
-            <button type="submit" class="btn btn-dark btn-block">Calculate</button>
+            <button type="submit" class="btn btn-custom btn-block">Calculate</button>
         </form>
 
         {% if intrinsic_value %}
@@ -43,9 +35,19 @@
             <h2 class="text-center text-success">{{ symbol }} 4 Year Price Target: ${{ Fifth_intrinsic_value }}</h2>
         {% endif %}
 
+        <!-- Error Display with Icon -->
         {% if error %}
-            <p class="text-danger text-center mt-3">Error: {{ error }}</p>
+        <div class="alert alert-danger fade show mt-3 d-flex align-items-center" role="alert">
+            <div>
+                {% if 'list index out of range' in error %}
+                    <strong>Invalid Ticker:</strong> The ticker symbol you entered is incorrect. Please try again. Tickers are like this: (AAPL, MSFT, NVDA, TSLA)
+                {% else %}
+                    <strong>Error:</strong> {{ error }}
+                {% endif %}
+            </div>
+        </div>
         {% endif %}
+
     </div>
 
     {% if WACC %}
@@ -80,7 +82,7 @@
                 <table class="table table-hover table-striped table-bordered">
                     <thead class="thead-dark">
                         <tr>
-                            <th>Period</th>
+                            <th>Period (Years)</th>
                             <th>1</th>
                             <th>2</th>
                             <th>3</th>
@@ -133,7 +135,7 @@
                 <table class="table table-hover table-striped table-bordered">
                     <thead class="thead-dark">
                         <tr>
-                            <th>Period</th>
+                            <th>Period (Years)</th>
                             <th>1</th>
                             <th>2</th>
                             <th>3</th>
@@ -255,11 +257,6 @@
                     }, false);
                 });
             }, false);
-    </script>
-    <script>
-        $(function () {
-            $('[data-toggle="tooltip"]').tooltip()
-            })
         })();
     </script>
 {% endblock %}
