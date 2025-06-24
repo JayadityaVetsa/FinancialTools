@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Resistance and Support Bands Graph{% endblock %}
+{% block content %}
+<div class="container">
+    <h1 class="text-center mb-4">Resistance and Support Bands Graph</h1>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <form action="/res-sup" method="POST" class="needs-validation" novalidate>
+                <div class="form-group">
+                    <label for="ticker">Enter Ticker:</label>
+                    <input type="text" class="form-control" id="ticker" name="ticker" placeholder="Enter Ticker Symbol" required>
+                    <div class="invalid-feedback">
+                        Please enter a ticker symbol.
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="lineIndex">Enter Line Index:</label>
+                    <input type="number" class="form-control" id="lineIndex" name="lineIndex" placeholder="Line Density Index (0 - 50)" min="0" max="50" required>
+                    <div class="invalid-feedback">
+                        Please enter a line index between 0 and 50.
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Submit</button>
+            </form>
+        </div>
+    </div>
+
+    {% if plot_data %}
+    <div class="row mt-5">
+        <div class="col-md-10 offset-md-1 text-center">
+            <h3>{{ ticker }}</h3>
+            <img src="data:image/png;base64,{{ plot_data }}" class="img-fluid img-thumbnail" alt="Resistance and Support Bands for {{ ticker }} Stock">
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    // Example starter JavaScript for disabling form submissions if there are invalid fields
+    (function () {
+        'use strict';
+        window.addEventListener('load', function () {
+            // Fetch all the forms we want to apply custom Bootstrap validation styles to
+            var forms = document.getElementsByClassName('needs-validation');
+            // Loop over them and prevent submission
+            var validation = Array.prototype.filter.call(forms, function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (form.checkValidity() === false) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        }, false);
+    })();
+</script>
+{% endblock %}
