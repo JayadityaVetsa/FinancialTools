@@ -18,6 +18,9 @@ matplotlib.use('Agg')
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
 
+ALPHA_VANTAGE_API_KEY = "TQ5LMSAFLYYILGDU"
+GEMINI_API_KEY = "AIzaSyCM0FzebXGOkU9TL18Q9yeB8FzeHmk45PM" # Your Gemini Key
+
 # Custom zip filter
 @app.template_filter('zip')
 def zip_filter(a, b):
@@ -261,7 +264,7 @@ def ai_summarizer():
             
             transcript = json_data['transcript']
 
-            genai.configure(api_key="AIzaSyCM0FzebXGOkU9TL18Q9yeB8FzeHmk45PM")
+            genai.configure(api_key="GEMINI_API_KEY")
 
             model = genai.GenerativeModel(
                 model_name="gemini-1.5-flash-latest",
@@ -365,95 +368,98 @@ def monte_carlo():
 def SEC_Fillings():
     if request.method == 'POST':
         ticker = request.form['ticker'].upper().strip()
-        apikey_discountingcashflow = "030411bc-30f9-45a7-9c87-8cbd1473d592"
+        # --- NEW: Replace with your actual sec-api.io API key ---
+        apikey_sec_api = "3d55f5d3d1dd31bd282d5c079c779b82b89b67fd7c9e26f0ad08a236482541f4"
+        
+        # --- NEW: Using sec-api.io Query API ---
+        # Documentation: https://sec-api.io/docs/query-api/
+        api_url = f"https://api.sec-api.io?token={apikey_sec_api}"
+
+        # Define the form types we are interested in
+        form_types_to_fetch = ["10-Q", "10-K", "8-K", "4", "6-K", "SC 13G/A"]
+        
+        # Construct the query for the API
+        # This is more efficient as we ask the API for exactly what we need.
+        # It fetches the 200 most recent filings matching the criteria.
+        query = {
+          "query": { "query_string": { 
+              "query": f"ticker:{ticker} AND formType:(\"{'\" OR \"'.join(form_types_to_fetch)}\")" 
+          }},
+          "from": "0",
+          "size": "200",
+          "sort": [{ "filedAt": { "order": "desc" } }]
+        }
+
         try:
-            api_url = f"https://discountingcashflows.com/api/sec-filings/?ticker={ticker}&key={apikey_discountingcashflow}"
-            response = requests.get(api_url)
-            response.raise_for_status()  # Raises an error for bad responses
+            # The Query API uses a POST request with a JSON payload
+            response = requests.post(api_url, json=query)
+            response.raise_for_status()  # Raises an HTTPError for bad responses (4xx or 5xx)
             json_data = response.json()
 
             # Initialize lists for each filing type
             links_10q, dates_10q = [], []
-            links_10K, dates_10k = [], []
+            links_10k, dates_10k = [], []
             links_8k, dates_8k = [], []
             links_4, dates_4 = [], []
             links_6k, dates_6k = [], []
             links_13g, dates_13g = [], []
+            
+            # --- NEW: Optimized single loop to process all filings ---
+            for filing in json_data['filings']:
+                form_type = filing['formType']
+                # The link to the filing's landing page on sec.gov
+                link = filing['linkToFilingDetails']
+                # The filing date, formatted as YYYY-MM-DD
+                date = filing['filedAt'].split('T')[0]
 
-            # Process Form 4 filings
-            for item in json_data:
-                if item['type'] == '4':
-                    links_4.append(item['finalLink'])
-                    dates_4.append(item['filingDate'].split(' ')[0])
-                    if len(links_4) == 40:
-                        break
-
-            # Process 10-Q and 10-K filings
-            for item in json_data:
-                if item['type'] == '10-Q':
-                    links_10q.append(item['finalLink'])
-                    dates_10q.append(item['filingDate'].split(' ')[0])
-                elif item['type'] == '10-K':
-                    links_10K.append(item['finalLink'])
-                    dates_10k.append(item['filingDate'].split(' ')[0])
-
-            # Process 8-K filings
-            for item in json_data:
-                if '8-K' in item['type']:
-                    if '.jpg' in item['finalLink'] or '.txt' in item['finalLink']:
-                        links_8k.append(item['link'])
-                    else:
-                        links_8k.append(item['finalLink'])
-                    dates_8k.append(item['filingDate'].split(' ')[0])
-                    if len(links_8k) == 40:
-                        break
-
-            # Process 6-K filings for international companies
-            for item in json_data:
-                if '6-K' in item['type']:
-                    if '.jpg' in item['finalLink'] or '.txt' in item['finalLink']:
-                        links_6k.append(item['link'])
-                    else:
-                        links_6k.append(item['finalLink'])
-                    dates_6k.append(item['filingDate'].split(' ')[0])
-                    if len(links_6k) == 40:
-                        break
-
-            # Process SC 13G/A filings
-            for item in json_data:
-                if 'SC 13G/A' in item['type']:
-                    if '.jpg' in item['finalLink'] or '.txt' in item['finalLink']:
-                        links_13g.append(item['link'])
-                    else:
-                        links_13g.append(item['finalLink'])
-                    dates_13g.append(item['filingDate'].split(' ')[0])
-                    if len(links_13g) == 40:
-                        break
-
-            if len(links_10K) == 0 and len(links_10q) == 0 and len(links_13g) == 0 and len(links_6k) == 0 and len(links_8k) == 0 and len(links_4) == 0:
-                return render_template("SEC_Fillings.html", error="The ticker symbol you entered is incorrect. Please try again. Tickers are like this: (AAPL, MSFT, NVDA, TSLA)")
+                if form_type == '10-Q':
+                    links_10q.append(link)
+                    dates_10q.append(date)
+                elif form_type == '10-K':
+                    links_10k.append(link)
+                    dates_10k.append(date)
+                elif form_type == '4' and len(links_4) < 40:
+                    links_4.append(link)
+                    dates_4.append(date)
+                elif form_type == '8-K' and len(links_8k) < 40:
+                    links_8k.append(link)
+                    dates_8k.append(date)
+                elif form_type == '6-K' and len(links_6k) < 40:
+                    links_6k.append(link)
+                    dates_6k.append(date)
+                elif form_type == 'SC 13G/A' and len(links_13g) < 40:
+                    links_13g.append(link)
+                    dates_13g.append(date)
+            
+            # Check if any filings were found at all
+            if not json_data['filings']:
+                error_message = f"No SEC filings found for ticker '{ticker}'. Please check the symbol and try again. Examples: AAPL, MSFT, GOOGL."
+                return render_template("SEC_Fillings.html", error=error_message)
 
             # Determine the maximum length of dates to maintain consistent table display
+            # Note: The 'links' lists were renamed to avoid conflicts with Python built-ins
             max_length = max(len(dates_10q), len(dates_10k), len(dates_4), len(dates_8k), len(dates_6k), len(dates_13g))
 
-            return render_template('SEC_Fillings.html', links_10q=links_10q,
-                                   dates_10q=dates_10q,
-                                   links_10K=links_10K,
-                                   dates_10k=dates_10k,
-                                   links_4=links_4,
-                                   dates_4=dates_4,
-                                   links_8k=links_8k,
-                                   dates_8k=dates_8k,
-                                   links_6k=links_6k,
-                                   dates_6k=dates_6k,
-                                   links_13g=links_13g,
-                                   dates_13g=dates_13g,
+            return render_template('SEC_Fillings.html', 
+                                   links_10q=links_10q, dates_10q=dates_10q,
+                                   links_10k=links_10k, dates_10k=dates_10k, # Renamed from links_10K to avoid case confusion
+                                   links_4=links_4, dates_4=dates_4,
+                                   links_8k=links_8k, dates_8k=dates_8k,
+                                   links_6k=links_6k, dates_6k=dates_6k,
+                                   links_13g=links_13g, dates_13g=dates_13g,
                                    max_length=max_length,
-                                   zip=zip)
+                                   zip=zip,
+                                   ticker=ticker) # Pass the ticker back to display on the page
 
         except requests.exceptions.RequestException as e:
-            error_message = f"Error fetching SEC filings data: {str(e)}"
+            # Handle potential JSON decoding errors or other request issues
+            error_message = f"An error occurred while communicating with the SEC API: {str(e)}"
             return render_template('SEC_Fillings.html', error=error_message)
+        except KeyError:
+            # This can happen if the API response doesn't contain 'filings'
+            # (e.g., if the ticker is invalid)
+            error_message = f"Invalid ticker or no data found for '{ticker}'. Please enter a valid stock ticker."
+            return render_template("SEC_Fillings.html", error=error_message)
 
     return render_template("SEC_Fillings.html")
 
@@ -461,65 +467,85 @@ def SEC_Fillings():
 @app.route("/stock_news", methods=['GET', 'POST'])
 def stock_news():
     if request.method == 'POST':
-        apikey_discountingcashflow = "030411bc-30f9-45a7-9c87-8cbd1473d592"
         try:
             ticker = request.form['ticker'].upper().strip()
-            news_count = 20
-            news_title = []
-            news_url = []
-            news_site = []
-            news_images = []
-
-            api_url = f"https://discountingcashflows.com/api/news/?tickers={ticker}&page=0&length={news_count}&key={apikey_discountingcashflow}"
+            api_url = f"https://www.alphavantage.co/query?function=NEWS_SENTIMENT&tickers={ticker}&limit=50&apikey={ALPHA_VANTAGE_API_KEY}"
+            
             response = requests.get(api_url)
-            response.raise_for_status()  # Raise an error if the request was unsuccessful
-
+            response.raise_for_status()
             data = response.json()
-            # Iterate over each news article and extract the relevant fields
-            for article in data:
-                news_title.append(article.get("title"))
-                news_url.append(article.get("url"))
-                news_site.append(article.get("site"))
-                news_images.append(article.get("image"))
 
-            if len(news_title) == 0:
-                return render_template("stock_news.html", error="The ticker symbol you entered is incorrect. Please try again. Tickers are like this: (AAPL, MSFT, NVDA, TSLA)")
+            if "Error Message" in data or not data.get('feed'):
+                error_msg = f"Could not find news for ticker '{ticker}'. It may be an invalid symbol or have no recent news."
+                return render_template("stock_news.html", error=error_msg)
 
-            # Configure the AI model
-            genai.configure(api_key="AIzaSyCM0FzebXGOkU9TL18Q9yeB8FzeHmk45PM")
+            # --- NEW: Using a single list of dictionaries ---
+            # This is much cleaner than managing multiple lists.
+            articles = []
+            for article_data in data.get('feed', []):
+                # We also grab the sentiment for each article now
+                for ticker_sentiment in article_data.get('ticker_sentiment', []):
+                    if ticker_sentiment.get('ticker') == ticker:
+                        articles.append({
+                            "title": article_data.get("title"),
+                            "url": article_data.get("url"),
+                            "site": article_data.get("source"),
+                            "image": article_data.get("banner_image"),
+                            "summary": article_data.get("summary"),
+                            "sentiment_label": ticker_sentiment.get('ticker_sentiment_label'),
+                            "sentiment_score": ticker_sentiment.get('ticker_sentiment_score')
+                        })
+                        break # Move to the next article once ticker is found
 
-            model = genai.GenerativeModel(
-                model_name="gemini-1.5-flash",
-            )
+            if not articles:
+                return render_template("stock_news.html", error=f"No news articles were found for the ticker symbol '{ticker}'.")
 
-            chat_session = model.start_chat(
-                history=[
-                    {
-                        "role": "user",
-                        "parts": [
-                            "I will provide you a list of titles for stock news articles and I want you to analyze what is happening today and make a 1 sentence quick headline of the stock news. Keep it short",
-                        ],
-                    },
-                    {
-                        "role": "model",
-                        "parts": [
-                            "Got it! I will analyze the titles in the list and make a headline that is short.\n",
-                        ],
-                    },
-                ]
-            )
-            all_news_titles = " ".join([title for title in news_title])
-            ai_response = chat_session.send_message(all_news_titles + ", make only one headline out of these titles")
-            cleaned_response = ai_response.text.replace("**", "")
+            # --- NEW: Advanced AI Analysis ---
+            genai.configure(api_key=GEMINI_API_KEY)
+            model = genai.GenerativeModel(model_name="gemini-1.5-flash-latest")
+            
+            # Create a string of just the titles to send to the AI
+            all_news_titles = "\n".join([article['title'] for article in articles])
 
-            return render_template("stock_news.html", response=cleaned_response, news_title=news_title, news_url=news_url, news_site=news_site, news_images=news_images)
+            # A more sophisticated prompt asking for a JSON output
+            prompt = f"""
+            Analyze the following list of news headlines for the stock ticker {ticker}.
+            Based on these headlines, provide a concise daily briefing.
+            The output must be a valid JSON object with the following three keys: "sentiment", "summary", and "themes".
+            - "sentiment": A single string describing the overall tone (e.g., "Bullish", "Bearish", "Neutral", "Mixed").
+            - "summary": A 2-3 sentence paragraph summarizing the key news.
+            - "themes": A list of 3-5 key topics or themes observed in the headlines (e.g., ["Earnings Report", "Analyst Ratings", "New Product"]).
+
+            Here are the headlines:
+            {all_news_titles}
+            """
+            
+            ai_response = model.generate_content(prompt)
+            
+            # --- NEW: Parse the AI's JSON response safely ---
+            ai_briefing = None
+            try:
+                # The response text might be wrapped in ```json ... ```, so we clean it up
+                cleaned_text = ai_response.text.strip().replace("```json", "").replace("```", "")
+                ai_briefing = json.loads(cleaned_text)
+            except (json.JSONDecodeError, AttributeError):
+                # If the AI fails to return valid JSON, we create a fallback
+                ai_briefing = {
+                    "sentiment": "Analysis Unavailable",
+                    "summary": "The AI could not generate a summary for the provided news. Please review the articles manually.",
+                    "themes": []
+                }
+
+            return render_template("stock_news.html",
+                                   ai_briefing=ai_briefing,
+                                   articles=articles,
+                                   ticker=ticker)
 
         except requests.RequestException as e:
-            error_message = f"An error occurred while fetching stock news: {e} + {response.status_code}"
+            error_message = f"An error occurred fetching news. The API may be unavailable. Details: {e}"
             return render_template("stock_news.html", error=error_message)
-
         except Exception as e:
-            error_message = f"An unexpected error occurred: {e} + {response.status_code}"
+            error_message = f"An unexpected error occurred: {e}"
             return render_template("stock_news.html", error=error_message)
 
     return render_template("stock_news.html")

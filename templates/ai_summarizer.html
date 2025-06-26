@@ -99,13 +99,13 @@
         <div class="mt-4">
             <!-- Part 1: General Analysis Card -->
             <div class="card result-card">
-                <div class="card-header">{{ ai_analysis.general_analysis.title }}</div>
+                <div class="card-header">{{ ai_analysis['general_analysis']['title'] }}</div>
                 <div class="card-body">
                     <h6 class="card-subtitle mb-2 text-muted">Overall Summary</h6>
-                    <p class="card-text">{{ ai_analysis.general_analysis.summary }}</p>
+                    <p class="card-text">{{ ai_analysis['general_analysis']['summary'] }}</p>
                     <h6 class="card-subtitle mt-3 mb-2 text-muted">Key Themes from the Call</h6>
                     <ul class="list-group list-group-flush">
-                        {% for point in ai_analysis.general_analysis.key_points %}
+                        {% for point in ai_analysis['general_analysis']['key_points'] %}
                             <li class="list-group-item ps-0">{{ point }}</li>
                         {% endfor %}
                     </ul>
@@ -114,19 +114,19 @@
 
             <!-- Part 2: Specific Answer Card -->
             <div class="card result-card">
-                <div class="card-header">{{ ai_analysis.specific_answer.title }}: <span class="fw-normal fst-italic">"{{ question }}"</span></div>
+                <div class="card-header">{{ ai_analysis['specific_answer']['title'] }}: <span class="fw-normal fst-italic">"{{ question }}"</span></div>
                 <div class="card-body">
                     
                     <!-- CRITICAL: Disclaimer box for inferred answers -->
-                    {% if ai_analysis.specific_answer.is_inferred %}
+                    {% if ai_analysis['specific_answer']['is_inferred'] %}
                     <div class="disclaimer-box">
                         <p class="mb-1"><strong><i class="bi bi-exclamation-triangle-fill"></i> Inferred Answer Advisory</strong></p>
-                        <p class="mb-0 small">{{ ai_analysis.specific_answer.reasoning_and_disclaimer }}</p>
+                        <p class="mb-0 small">{{ ai_analysis['specific_answer']['reasoning_and_disclaimer'] }}</p>
                     </div>
                     {% endif %}
 
                     <h6 class="card-subtitle mt-3 mb-2 text-muted">Answer</h6>
-                    <p class="card-text">{{ ai_analysis.specific_answer.answer }}</p>
+                    <p class="card-text">{{ ai_analysis['specific_answer']['answer'] }}</p>
                 </div>
             </div>
         </div>
