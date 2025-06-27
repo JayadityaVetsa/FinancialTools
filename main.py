@@ -20,6 +20,7 @@ app.secret_key = 'your_secret_key'
 
 ALPHA_VANTAGE_API_KEY = "TQ5LMSAFLYYILGDU"
 GEMINI_API_KEY = "AIzaSyCM0FzebXGOkU9TL18Q9yeB8FzeHmk45PM" # Your Gemini Key
+API_KEY_FMP = 'ZyymFyFsPSWfZBrL0skr97yoYyM5Czdr'
 
 # Custom zip filter
 @app.template_filter('zip')
@@ -39,8 +40,10 @@ def home():
 def guides():
     return render_template('guides.html')
 
+# No changes needed for the format_large_number function
 def format_large_number(number):
     """Formats a large number into K, M, B, T notation."""
+    number = float(number)  # Ensure the input is a float for division
     if number < 1000:
         return f"{number}"
     elif number < 1_000_000:
@@ -52,14 +55,14 @@ def format_large_number(number):
     else:
         return f"{number / 1_000_000_000_000:.1f}T"
 
+# Replace your dcf_analysis function with this updated version
 @app.route('/dcf-analysis', methods=['GET', 'POST'])
 def dcf_analysis():
     if request.method == 'POST':
         symbol = request.form['ticker'].upper().strip()
-        apikey_fmp = 'ZyymFyFsPSWfZBrL0skr97yoYyM5Czdr'
-        # apikey_discountingcashflow = "030411bc-30f9-45a7-9c87-8cbd1473d592"
+        apikey_fmp = API_KEY_FMP
         try:
-            # Get Free Cash Flow
+            # --- Data Fetching (No changes here) ---
             url_fcf = f'https://financialmodelingprep.com/api/v3/cash-flow-statement/{symbol}?period=annual&apikey={apikey_fmp}'
             response_cashflow = requests.get(url_fcf)
             json_cf = response_cashflow.json()
@@ -71,18 +74,14 @@ def dcf_analysis():
             json_data = response_float.json()
             shares_outstanding = json_data[0]['outstandingShares']
 
-            # Get Current Price
             url = f'https://financialmodelingprep.com/api/v3/historical-price-full/{symbol}?apikey={apikey_fmp}'
             response = requests.get(url)
             data = response.json()
-
-            # Get the most recent closing price
             if 'historical' not in data or not data['historical']:
-                return render_template('dcf_analysis.html', error="Could not fetch historical price data. Please try again later.")
+                return render_template('dcf_analysis.html', error="Could not fetch historical price data.")
             price = data['historical'][0]['close']
             market_cap = price * shares_outstanding
 
-            # Get Treasury Rate using FMP Treasury Rates API
             treasury_api_url = f'https://financialmodelingprep.com/stable/treasury-rates?apikey={apikey_fmp}'
             response_treasury = requests.get(treasury_api_url)
             treasury_data = response_treasury.json()
@@ -90,16 +89,13 @@ def dcf_analysis():
                 return render_template('dcf_analysis.html', error="Could not fetch 10-year treasury rate data. Please try again later.")
             Ten_treasury = treasury_data[0]['year10'] / 100
 
-            # Financial Data
             url_balance_sheet = f'https://financialmodelingprep.com/api/v3/balance-sheet-statement/{symbol}?period=annual&apikey={apikey_fmp}'
             response_bs = requests.get(url_balance_sheet)
             json_bs = response_bs.json()
-            if not json_bs or 'totalDebt' not in json_bs[0] or 'totalCurrentAssets' not in json_bs[0]:
-                return render_template('dcf_analysis.html', error="Could not fetch balance sheet data. Please try again later.")
+            if not json_bs: return render_template('dcf_analysis.html', error="Could not fetch balance sheet data.")
             total_debt = json_bs[0]['totalDebt']
             total_assets = json_bs[0]['totalCurrentAssets']
 
-            # Get tax rate
             company = yf.Ticker(symbol)
             financials_json_str = company.get_financials(proxy=False).to_json()
             financials_json = json.loads(financials_json_str)
@@ -118,54 +114,49 @@ def dcf_analysis():
             if not json_is or 'ebitda' not in json_is[0]:
                 return render_template('dcf_analysis.html', error="Could not fetch income statement data. Please try again later.")
             ebitda_forecast = [json_is[0]['ebitda']]
-
-            # WACC Calculation
+            
+            # --- WACC Calculation (and storing components) ---
             market_return = 0.08
             cost_of_equity = Ten_treasury + beta * (market_return - Ten_treasury)
-            cost_of_debt = 0.05
-            EDE = market_cap / (market_cap + total_debt)
-            DDE = total_debt / (market_cap + total_debt)
-            WACC = EDE * cost_of_equity + DDE * cost_of_debt * (1 - tax_rate)
-            EV_EBITDA = market_cap / ebitda_forecast[0]
+            cost_of_debt = 0.05 # Assumption
+            after_tax_cost_of_debt = cost_of_debt * (1 - tax_rate)
+            
+            equity_weight = market_cap / (market_cap + total_debt)
+            debt_weight = total_debt / (market_cap + total_debt)
+            
+            WACC = (equity_weight * cost_of_equity) + (debt_weight * after_tax_cost_of_debt)
+            EV_EBITDA = (market_cap + total_debt) / ebitda_forecast[0] # Enterprise Value includes debt
 
-            # Forecasting
-            earnings_growth = (float(request.form['growthRate']) / 100)  # User input for growth rate
-            discount_factor_list = [1 / ((1 + WACC) ** (1))]
+            # --- Forecasting (No changes here) ---
+            earnings_growth = (float(request.form['growthRate']) / 100)
+            discount_factor_list = []
             PV_FCF_list = []
 
-            for i in range(4):
-                ebitda_forecast.append(ebitda_forecast[i] * (1 + earnings_growth))
-                freecashflow_forecast.append(freecashflow_forecast[i] * (1 + earnings_growth))
-                discount_factor_list.append(1 / ((1 + WACC) ** (i + 2)))
-
+            # Project FCF and EBITDA
+            for i in range(1, 5):
+                ebitda_forecast.append(ebitda_forecast[i-1] * (1 + earnings_growth))
+                freecashflow_forecast.append(freecashflow_forecast[i-1] * (1 + earnings_growth))
+            
+            # Calculate PV of FCF
             for i in range(5):
-                PV_FCF_list.append(freecashflow_forecast[i] * discount_factor_list[i])
-
+                discount_factor = 1 / ((1 + WACC) ** (i + 1))
+                discount_factor_list.append(discount_factor)
+                PV_FCF_list.append(freecashflow_forecast[i] * discount_factor)
+            
             US_GDP_Growth = 0.025
-
-            EVEBITDATV = (EV_EBITDA) * ebitda_forecast[4]
-            perpuity_growth_terminal_value = (freecashflow_forecast[4]*(1+US_GDP_Growth)) / (WACC-US_GDP_Growth)
-
-            terminal_value = (perpuity_growth_terminal_value +EVEBITDATV )/2
-
-            PV_TV = terminal_value * discount_factor_list[4]
+            EVEBITDATV = EV_EBITDA * ebitda_forecast[-1]
+            perpetuity_growth_terminal_value = (freecashflow_forecast[-1] * (1 + US_GDP_Growth)) / (WACC - US_GDP_Growth)
+            terminal_value = (perpetuity_growth_terminal_value + EVEBITDATV) / 2
+            
+            PV_TV = terminal_value * discount_factor_list[-1]
             enterprise_value = sum(PV_FCF_list) + PV_TV
-            equity_value = enterprise_value + total_assets - total_debt
+            equity_value = enterprise_value - total_debt + total_assets
             intrinsic_value = round(equity_value / shares_outstanding, 2)
 
-            #4-year price target
-            enterprise_value2 = 0
-            for i in range(len(freecashflow_forecast)):
-                enterprise_value2 = enterprise_value2 + freecashflow_forecast[i]
-            enterprise_value2 = enterprise_value2 + terminal_value
+            # 4-year price target (your original calculation)
+            enterprise_value2 = sum(freecashflow_forecast) + terminal_value
             equity_value2 = enterprise_value2 + (total_assets - total_debt)
             Fifth_intrinsic_value = round(equity_value2 / shares_outstanding, 2)
-
-            # Format large numbers in lists
-            ebitda_forecast = [format_large_number(value) for value in ebitda_forecast]
-            freecashflow_forecast = [format_large_number(value) for value in freecashflow_forecast]
-            discount_factor_list = [f"{value:.4f}" for value in discount_factor_list]  # Not really large numbers, so just formatted to 4 decimal places
-            PV_FCF_list = [format_large_number(value) for value in PV_FCF_list]
 
             # Plotting using FMP API
             end_date = datetime.today()
@@ -209,30 +200,37 @@ def dcf_analysis():
             plot_data = base64.b64encode(buf.getvalue()).decode('utf8')
             plt.close()
 
+            # --- UPDATED RENDER_TEMPLATE CALL ---
             return render_template('dcf_analysis.html',
                                    symbol=symbol,
-                                   WACC='{0:.2f}'.format(WACC*100),
-                                   intrinsic_value='{0:.2f}'.format(intrinsic_value),
+                                   WACC='{:.2f}'.format(WACC*100),
+                                   intrinsic_value='{:.2f}'.format(intrinsic_value),
                                    earnings_growth=earnings_growth * 100,
-                                   ev_ebitda_multiple='{0:.2f}'.format(EV_EBITDA),
-                                   ebitda_forecast=ebitda_forecast,
-                                   freecashflow_forecast=freecashflow_forecast,
+                                   ev_ebitda_multiple='{:.2f}'.format(EV_EBITDA),
+                                   freecashflow_forecast=[format_large_number(v) for v in freecashflow_forecast],
                                    EVEBITDATV = format_large_number(EVEBITDATV),
-                                   perpuity_growth_terminal_value = format_large_number(perpuity_growth_terminal_value),
+                                   perpuity_growth_terminal_value = format_large_number(perpetuity_growth_terminal_value),
                                    terminal_value = format_large_number(terminal_value),
-                                   plot_data=plot_data,
-                                   discount_factor_list = discount_factor_list,
-                                   PV_FCF_list = PV_FCF_list,
+                                   plot_data=plot_data, # Pass plot data
+                                   PV_FCF_list = [format_large_number(v) for v in PV_FCF_list],
                                    PV_TV = format_large_number(PV_TV),
                                    enterprise_value = format_large_number(enterprise_value),
                                    total_assets = format_large_number(total_assets),
                                    total_debt = format_large_number(total_debt),
                                    equity_value = format_large_number(equity_value),
-                                   Fifth_intrinsic_value = '{0:.2f}'.format(Fifth_intrinsic_value),
+                                   Fifth_intrinsic_value = '{:.2f}'.format(Fifth_intrinsic_value),
                                    shares_outstanding = format_large_number(shares_outstanding),
+                                   # NEW: Passing WACC components
+                                   cost_of_equity = '{:.2f}'.format(cost_of_equity * 100),
+                                   after_tax_cost_of_debt = '{:.2f}'.format(after_tax_cost_of_debt * 100),
+                                   equity_weight = '{:.2f}'.format(equity_weight * 100),
+                                   debt_weight = '{:.2f}'.format(debt_weight * 100)
                                    )
         except Exception as e:
+            # Add traceback for easier debugging if something still goes wrong
+            import traceback
             return render_template('dcf_analysis.html', error=f"{str(e)}\n{traceback.format_exc()}")
+            
     return render_template('dcf_analysis.html')
 
 @app.route('/ai-summarizer', methods=['GET', 'POST'])

@@ -1,262 +1,282 @@
 {% extends "base.html" %}
 {% block title %}DCF Analysis{% endblock %}
+
 {% block content %}
-    <div class="container mt-4">
-         <div class="text-center mb-4">
-            <a href="/guides#DCF_analysis" class="btn btn-custom">Click here to go to the guide for DCF analysis</a>
+<style>
+    /* Custom styles for a more polished look */
+    .summary-card {
+        border-left: 5px solid #28a745;
+    }
+    .price-target-card {
+        border-left: 5px solid #007bff;
+    }
+    .card-header-custom {
+        background-color: #343a40;
+        color: white;
+    }
+    .valuation-spectrum {
+        position: relative;
+        height: 50px;
+        background: linear-gradient(to right, #f8d7da, #fff3cd, #d4edda);
+        border-radius: .25rem;
+        border: 1px solid #dee2e6;
+    }
+    .spectrum-marker {
+        position: absolute;
+        top: -10px;
+        transform: translateX(-50%);
+        text-align: center;
+    }
+    .spectrum-marker .dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        margin: 0 auto 5px;
+        border: 2px solid white;
+        box-shadow: 0 0 5px rgba(0,0,0,0.3);
+    }
+    .spectrum-label {
+        font-size: 0.8rem;
+        font-weight: bold;
+    }
+</style>
+
+<div class="container mt-4">
+    <div class="text-center mb-4">
+        <a href="/guides#DCF_analysis" class="btn btn-custom">Click here to go to the guide for DCF analysis</a>
+    </div>
+    <div class="alert alert-warning text-center" role="alert">
+        Warning: This model is for educational purposes and may not be suitable for holding companies, financial institutions, or unprofitable firms. *Not financial advice.*
+    </div>
+    <h1 class="text-center mb-4">DCF Stock Intrinsic Value Calculator</h1>
+    <form action="/dcf-analysis" method="post" class="needs-validation mb-5" novalidate>
+        <div class="form-group">
+            <label for="ticker">Enter Ticker:</label>
+            <input type="text" class="form-control" id="ticker" name="ticker" required>
+            <div class="invalid-feedback">Please enter a valid ticker.</div>
         </div>
-        <div class="alert alert-warning text-center" role="alert">
-            Warning: Don't use for holding companies, sum of parts companies, companies with negative free cash flow/unprofitable
-            *not financial advice
+        <div class="form-group">
+            <label for="growthRate">Projected 5-Year Annual Growth Rate (%)</label>
+            <input type="number" step="0.01" class="form-control" id="growthRate" name="growthRate" required>
+            <div class="invalid-feedback">Please enter a valid growth rate.</div>
         </div>
-        <h1 class="text-center mb-4">DCF Stock Intrinsic Value Calculator</h1>
-        <form action="/dcf-analysis" method="post" class="needs-validation mb-5" novalidate>
-            <div class="form-group">
-                <label for="ticker">Enter Ticker:</label>
-                <input type="text" class="form-control" id="ticker" name="ticker" required>
-                <div class="invalid-feedback">
-                    Please enter a valid ticker.
+        <button type="submit" class="btn btn-custom btn-block">Calculate</button>
+    </form>
+
+    {% if error %}
+    <div class="alert alert-danger">{{ error | safe }}</div>
+    {% endif %}
+
+     {% if intrinsic_value %}
+    <!-- Section 1: Valuation Summary & Spectrum -->
+    <div class="card mb-4">
+        <div class="card-header card-header-custom"><h4>{{ symbol }} Valuation Summary</h4></div>
+        <div class="card-body">
+            <div class="row text-center mb-4">
+                <div class="col-md-6 mb-3"><div class="card h-100 summary-card"><div class="card-body">
+                    <h5 class="card-title">Intrinsic Value per Share</h5>
+                    <p class="display-4 font-weight-bold text-success">${{ intrinsic_value }}</p>
+                    <p class="text-muted">Based on 5-Year DCF Model</p>
+                </div></div></div>
+                <div class="col-md-6 mb-3"><div class="card h-100 price-target-card"><div class="card-body">
+                    <h5 class="card-title">4-Year Price Target</h5>
+                    <p class="display-4 font-weight-bold text-primary">${{ Fifth_intrinsic_value }}</p>
+                    <p class="text-muted">Based on your original calculation</p>
+                </div></div></div>
+            </div>
+            
+            <h5 class="text-center mb-3">Valuation Spectrum</h5>
+            <div class="valuation-spectrum mb-5">
+                <!-- FIXED: Bear Case Marker -->
+                <div class="spectrum-marker" style="left: 15%;">
+                    <div class="dot bg-danger"></div>
+                    <div class="spectrum-label">Bear Case</div>
+                    <div class="spectrum-label text-danger">${{ "%.2f"|format(intrinsic_value|float * 0.8) }}</div>
+                </div>
+                <!-- Base Case (Intrinsic Value) Marker -->
+                <div class="spectrum-marker" style="left: 50%;">
+                    <div class="dot bg-success"></div>
+                    <div class="spectrum-label">Base Case (IV)</div>
+                    <div class="spectrum-label text-success">${{ intrinsic_value }}</div>
+                </div>
+                 <!-- FIXED: Bull Case Marker -->
+                <div class="spectrum-marker" style="left: 85%;">
+                    <div class="dot bg-info"></div>
+                    <div class="spectrum-label">Bull Case</div>
+                    <div class="spectrum-label text-info">${{ "%.2f"|format(intrinsic_value|float * 1.2) }}</div>
                 </div>
             </div>
-            <div class="form-group">
-                <label for="growthRate">Growth Rate (%)</label>
-                <input type="number" step="0.01" class="form-control" id="growthRate" name="growthRate" required>
-                <div class="invalid-feedback">
-                    Please enter a valid growth rate.
+        </div>
+    </div>
+    
+    <!-- Section 2: Key Calculation Breakdowns -->
+    <div class="row">
+        <!-- UPDATED: WACC Breakdown Card with real data -->
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header card-header-custom">WACC Breakdown</div>
+                <div class="card-body">
+                    <h3 class="card-title text-center">{{ WACC }}%</h3>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">Cost of Equity <span class="badge badge-primary badge-pill">{{ cost_of_equity }}%</span></li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">After-Tax Cost of Debt <span class="badge badge-primary badge-pill">{{ after_tax_cost_of_debt }}%</span></li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">Equity Weighting <span class="badge badge-secondary badge-pill">{{ equity_weight }}%</span></li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">Debt Weighting <span class="badge badge-secondary badge-pill">{{ debt_weight }}%</span></li>
+                    </ul>
                 </div>
             </div>
-            <button type="submit" class="btn btn-custom btn-block">Calculate</button>
-        </form>
-
-        {% if intrinsic_value %}
-            <h2 class="text-center text-success">{{ symbol }} Intrinsic Value: ${{ intrinsic_value }}</h2>
-        {% endif %}
-         {% if intrinsic_value %}
-            <h2 class="text-center text-success">{{ symbol }} 4 Year Price Target: ${{ Fifth_intrinsic_value }}</h2>
-        {% endif %}
-
-        <!-- Error Display with Icon -->
-        {% if error %}
-        <div class="alert alert-danger fade show mt-3 d-flex align-items-center" role="alert">
-            <div>
-                {% if 'list index out of range' in error %}
-                    <strong>Invalid Ticker:</strong> The ticker symbol you entered is incorrect. Please try again. Tickers are like this: (AAPL, MSFT, NVDA, TSLA)
-                {% else %}
-                    <strong>Error:</strong> {{ error }}
-                {% endif %}
+        </div>
+        <!-- Terminal Value Breakdown Card (No changes needed) -->
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header card-header-custom">Terminal Value Breakdown</div>
+                <div class="card-body">
+                    <h3 class="card-title text-center">{{ terminal_value }}</h3>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">Perpetuity Growth Method <span class="badge badge-info badge-pill">{{ perpuity_growth_terminal_value }}</span></li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">EV/EBITDA Exit Multiple Method <span class="badge badge-info badge-pill">{{ EVEBITDATV }}</span></li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center"><strong>Average Used in Model</strong> <span class="badge badge-success badge-pill">{{ terminal_value }}</span></li>
+                    </ul>
+                </div>
             </div>
         </div>
-        {% endif %}
-
+    </div>
+    
+    <!-- Section 3: Detailed Projections & The Bridge Chart -->
+    <div class="card mb-4">
+         <div class="card-header card-header-custom">
+            <h4>Detailed Projections & Value Bridge</h4>
+        </div>
+        <div class="card-body">
+             <h5 class="mb-3">5-Year Free Cash Flow Projection</h5>
+             <table class="table table-bordered text-center">
+                 <thead class="thead-light">
+                     <tr>
+                         <th>Year 1</th><th>Year 2</th><th>Year 3</th><th>Year 4</th><th>Year 5</th>
+                     </tr>
+                 </thead>
+                 <tbody>
+                     <tr>
+                         {% for fcf in freecashflow_forecast %}<td>{{ fcf }}</td>{% endfor %}
+                     </tr>
+                     <tr class="table-info">
+                         {% for pv_fcf in PV_FCF_list %}<td><strong>{{ pv_fcf }}</strong></td>{% endfor %}
+                     </tr>
+                 </tbody>
+                 <tfoot style="font-size: 0.8rem;" class="text-muted">
+                     <tr>
+                         <td colspan="5">Top row is nominal FCF, bottom row (blue) is Present Value of FCF.</td>
+                     </tr>
+                 </tfoot>
+             </table>
+             
+             <hr class="my-4">
+             
+             <h5 class="mb-3">Enterprise to Equity Value Bridge</h5>
+             <!-- This canvas element is where the chart will be drawn -->
+             <canvas id="equityBridgeChart"></canvas>
+        </div>
     </div>
 
-    {% if WACC %}
-        <div class="container mb-5">
-            <div class="table-responsive">
-                <table class="table table-hover table-striped table-bordered">
-                    <thead class="thead-dark">
-                        <tr>
-                            <th>WACC</th>
-                            <th colspan="2" class="text-center">{{ WACC }}%</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>EV/EBITDA Multiple</td>
-                            <td colspan="2" class="text-center">{{ ev_ebitda_multiple }}x</td>
-                        </tr>
-                        <tr>
-                            <td>Earnings Growth</td>
-                            <td colspan="2" class="text-center">{{ earnings_growth }}%</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    {% endif %}
-
-    {% if terminal_value %}
-    <hr>
-        <div class="container mb-5">
-            <div class="table-responsive">
-                <table class="table table-hover table-striped table-bordered">
-                    <thead class="thead-dark">
-                        <tr>
-                            <th>Period (Years)</th>
-                            <th>1</th>
-                            <th>2</th>
-                            <th>3</th>
-                            <th>4</th>
-                            <th>5</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>EBITDA</td>
-                            <td class="text-center">{{ ebitda_forecast[0] }}</td>
-                            <td class="text-center">{{ ebitda_forecast[1] }}</td>
-                            <td class="text-center">{{ ebitda_forecast[2] }}</td>
-                            <td class="text-center">{{ ebitda_forecast[3] }}</td>
-                            <td class="text-center">{{ ebitda_forecast[4] }}</td>
-                        </tr>
-                        <tr>
-                            <td>FCF</td>
-                            <td class="text-center">{{ freecashflow_forecast[0] }}</td>
-                            <td class="text-center">{{ freecashflow_forecast[1] }}</td>
-                            <td class="text-center">{{ freecashflow_forecast[2] }}</td>
-                            <td class="text-center">{{ freecashflow_forecast[3] }}</td>
-                            <td class="text-center">{{ freecashflow_forecast[4] }}</td>
-                        </tr>
-
-                        <tr>
-                            <td colspan="5" class="text-right font-weight-bold">EV/EBITDA TV: </td>
-                            <td class="text-center">{{EVEBITDATV}}</td>
-                        </tr>
-
-                        <tr>
-                            <td colspan="5" class="text-right font-weight-bold">Perpetuity Growth TV: </td>
-                            <td class="text-center">{{perpuity_growth_terminal_value}}</td>
-                        </tr>
-
-                        <tr>
-                            <td colspan="5" class="text-right font-weight-bold">Terminal Value: </td>
-                            <td class="text-center font-weight-bold">{{ terminal_value }}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    {% endif %}
-
-    {% if freecashflow_forecast %}
-    <hr>
-        <div class="container mb-5">
-            <div class="table-responsive">
-                <table class="table table-hover table-striped table-bordered">
-                    <thead class="thead-dark">
-                        <tr>
-                            <th>Period (Years)</th>
-                            <th>1</th>
-                            <th>2</th>
-                            <th>3</th>
-                            <th>4</th>
-                            <th>5</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>FCF</td>
-                            <td class="text-center">{{ freecashflow_forecast[0] }}</td>
-                            <td class="text-center">{{ freecashflow_forecast[1] }}</td>
-                            <td class="text-center">{{ freecashflow_forecast[2] }}</td>
-                            <td class="text-center">{{ freecashflow_forecast[3] }}</td>
-                            <td class="text-center">{{ freecashflow_forecast[4] }}</td>
-                        </tr>
-                        <tr>
-                            <td colspan="5" class="text-right font-weight-bold">Terminal Value: </td>
-                            <td class="text-center font-weight-bold">{{ terminal_value }}</td>
-                        </tr>
-                        <tr>
-                            <td>Discount Factor</td>
-                            <td class="text-center">{{ discount_factor_list[0] }}</td>
-                            <td class="text-center">{{ discount_factor_list[1] }}</td>
-                            <td class="text-center">{{ discount_factor_list[2] }}</td>
-                            <td class="text-center">{{ discount_factor_list[3] }}</td>
-                            <td class="text-center">{{ discount_factor_list[4] }}</td>
-                        </tr>
-                        <tr>
-                            <td>PV of FCF</td>
-                            <td class="text-center">{{ PV_FCF_list[0] }}</td>
-                            <td class="text-center">{{ PV_FCF_list[1] }}</td>
-                            <td class="text-center">{{ PV_FCF_list[2] }}</td>
-                            <td class="text-center">{{ PV_FCF_list[3] }}</td>
-                            <td class="text-center">{{ PV_FCF_list[4] }}</td>
-                        </tr>
-                        <tr>
-                            <td colspan="5" class="text-right font-weight-bold">PV of TV</td>
-                            <td class="text-center font-weight-bold">{{ PV_TV }}</td>
-                        </tr>
-                        <tr>
-                            <td colspan="5" class="text-right font-weight-bold" >Enterprise Value</td>
-                            <td class="text-center font-weight-bold">{{ enterprise_value }}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    {% endif %}
-
-    {% if enterprise_value %}
-    <hr>
-        <div class="container mb-5">
-            <div class="table-responsive">
-                <table class="table table-hover table-striped table-bordered">
-                    <thead class="thead-dark">
-                        <tr class="text-center">
-                            <th colspan="2">Enterprise Value to Equity Value</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td class="text-left">Enterprise Value</td>
-                            <td class="text-center">{{ enterprise_value }}</td>
-                        </tr>
-                        <tr>
-                            <td class="text-left">Total Assets</td>
-                            <td class="text-center">{{ total_assets }}</td>
-                        </tr>
-                        <tr>
-                            <td class="text-left">Total Debt</td>
-                            <td class="text-center">{{ total_debt }}</td>
-                        </tr>
-                        <tr>
-                            <td class="text-left">Equity Value</td>
-                            <td class="text-center">{{ equity_value }}</td>
-                        </tr>
-                        <tr>
-                            <td class="text-left">Shares Outstanding</td>
-                            <td class="text-center">{{ shares_outstanding }}</td>
-                        </tr>
-                        <tr>
-                            <td class="text-left">Share Price</td>
-                            <td class="text-center">{{ intrinsic_value }}</td>
-                        </tr>
-                         <tr>
-                            <td class="text-left">4 year price target</td>
-                            <td class="text-center">{{ Fifth_intrinsic_value }}</td>
-                        </tr>
-
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    {% endif %}
-
+    <!-- Stock Chart Plot (Kept from original) -->
     {% if plot_data %}
-        <div class="container mb-5">
-            <div class="text-center">
-                <h3>Stock Price Chart</h3>
+        <div class="card mb-5">
+             <div class="card-header card-header-custom">
+                <h4>Historical Price vs. Intrinsic Value</h4>
+            </div>
+            <div class="card-body text-center">
                 <img src="data:image/png;base64,{{ plot_data }}" class="img-fluid img-thumbnail" alt="Stock Price Chart">
             </div>
         </div>
     {% endif %}
 
+    {% endif %}
+</div>
 
-    <script>
-        (function () {
-            'use strict';
-            window.addEventListener('load', function () {
-                var forms = document.getElementsByClassName('needs-validation');
-                var validation = Array.prototype.filter.call(forms, function (form) {
-                    form.addEventListener('submit', function (event) {
-                        if (form.checkValidity() === false) {
-                            event.preventDefault();
-                            event.stopPropagation();
+<!-- Add Chart.js for the waterfall chart -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// This script will only run if the results are present
+{% if enterprise_value %}
+    // The Chart.js logic for the waterfall chart
+    const enterpriseValueRaw = parseFloat('{{ enterprise_value }}'.replace(/[^0-9.-]+/g,""));
+    const totalDebtRaw = parseFloat('{{ total_debt }}'.replace(/[^0-9.-]+/g,""));
+    const totalAssetsRaw = parseFloat('{{ total_assets }}'.replace(/[^0-9.-]+/g,"")); // Your code uses 'totalCurrentAssets', we use that here
+    const equityValueRaw = parseFloat('{{ equity_value }}'.replace(/[^0-9.-]+/g,""));
+
+    const ctx = document.getElementById('equityBridgeChart').getContext('2d');
+    const equityBridgeChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Enterprise Value', '(-) Total Debt', '(+) Current Assets', 'Implied Equity Value'],
+            datasets: [{
+                label: 'Value Bridge',
+                data: [
+                    [0, enterpriseValueRaw], // Start bar
+                    [enterpriseValueRaw - totalDebtRaw, enterpriseValueRaw], // Subtraction bar
+                    [enterpriseValueRaw - totalDebtRaw, enterpriseValueRaw - totalDebtRaw + totalAssetsRaw], // Addition bar
+                    [0, equityValueRaw] // End bar
+                ],
+                backgroundColor: [
+                    'rgba(40, 167, 69, 0.7)',  // Green for Enterprise Value
+                    'rgba(220, 53, 69, 0.7)',   // Red for Debt
+                    'rgba(23, 162, 184, 0.7)',  // Blue for Assets
+                    'rgba(40, 167, 69, 0.9)'   // Darker Green for Equity Value
+                ],
+                borderColor: [
+                    'rgba(40, 167, 69, 1)',
+                    'rgba(220, 53, 69, 1)',
+                    'rgba(23, 162, 184, 1)',
+                    'rgba(40, 167, 69, 1)'
+                ],
+                borderWidth: 1,
+                barPercentage: 0.8
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                   callbacks: {
+                        label: function(context) {
+                            const val1 = context.raw[0];
+                            const val2 = context.raw[1];
+                            const diff = Math.abs(val2 - val1).toFixed(2);
+                            return `Value: ${diff}`;
                         }
-                        form.classList.add('was-validated');
-                    }, false);
-                });
-            }, false);
-        })();
-    </script>
+                   }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    stacked: true
+                },
+                x: {
+                   
+                    ticks: {
+                        callback: function(value, index, values) {
+                            // Custom tick formatter (e.g., to show in Billions/Trillions)
+                            if (Math.abs(value) >= 1e12) {
+                                return (value / 1e12).toFixed(1) + 'T';
+                            }
+                            if (Math.abs(value) >= 1e9) {
+                                return (value / 1e9).toFixed(1) + 'B';
+                            }
+                             if (Math.abs(value) >= 1e6) {
+                                return (value / 1e6).toFixed(1) + 'M';
+                            }
+                            return value;
+                        }
+                    }
+                }
+            }
+        }
+    });
+{% endif %}
+</script>
+
 {% endblock %}
